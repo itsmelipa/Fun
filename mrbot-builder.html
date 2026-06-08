@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MrBot — ربات‌ساز</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#030a05;--bg2:#050e07;--surface:#091409;--card:#0b1a0c;
+  --green:#00e676;--green2:#69f0ae;--green3:#00c853;
+  --gold:#ffd54f;--red:#ff5252;
+  --border:rgba(0,230,118,0.12);--border2:rgba(0,230,118,0.22);
+  --text:#e8f5e9;--dim:#81c784;--muted:#4caf50;--muted2:#2e7d32;
+  --glow:rgba(0,230,118,0.15);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Vazirmatn',sans-serif;
+  background:var(--bg);color:var(--text);
+  overflow-x:hidden;direction:rtl;min-height:100vh;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,230,118,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,230,118,0.025) 1px,transparent 1px);
+  background-size:44px 44px;pointer-events:none;z-index:0;
+}
+.orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,200,83,0.06) 0%,transparent 70%);top:-200px;right:-150px}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(0,230,118,0.04) 0%,transparent 70%);bottom:-100px;left:-100px}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 36px;
+  background:rgba(3,10,5,0.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.logo{display:flex;align-items:center;gap:9px;font-size:1.15rem;font-weight:900;color:var(--green)}
+.logo-box{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,#1b5e20,var(--green3));
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  box-shadow:0 0 14px rgba(0,200,83,0.35);
+}
+.logo span{color:rgba(0,230,118,0.35);font-weight:300}
+.logo em{color:var(--green2);font-style:normal}
+.nav-badge{
+  font-size:0.72rem;font-weight:700;letter-spacing:0.5px;
+  padding:4px 12px;border-radius:4px;
+  background:rgba(0,230,118,0.08);border:1px solid var(--border2);
+  color:var(--green2);
+}
+
+/* MAIN LAYOUT */
+main{
+  position:relative;z-index:1;
+  max-width:1100px;margin:0 auto;
+  padding:40px 32px 80px;
+}
+
+/* PAGE HEADER */
+.page-header{
+  text-align:center;margin-bottom:48px;
+}
+.page-header h1{
+  font-size:clamp(2rem,5vw,3.2rem);
+  font-weight:900;letter-spacing:-1.5px;
+  line-height:1.1;margin-bottom:10px;
+}
+.page-header h1 span{
+  color:var(--green);
+  text-shadow:0 0 40px rgba(0,230,118,0.4);
+}
+.page-header p{color:var(--dim);font-size:0.95rem;line-height:1.7}
+
+/* STEPS ROW */
+.steps-row{
+  display:flex;align-items:center;justify-content:center;
+  gap:0;margin-bottom:48px;
+  flex-wrap:wrap;
+}
+.step-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 18px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  font-size:0.78rem;color:var(--dim);
+  transition:all 0.3s;
+}
+.step-pill:first-child{border-radius:8px 0 0 8px}
+.step-pill:last-child{border-radius:0 8px 8px 0}
+.step-pill.active{
+  background:rgba(0,230,118,0.08);
+  border-color:var(--border2);
+  color:var(--green2);font-weight:700;
+}
+.step-pill .sn{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--muted2);color:#000;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.65rem;font-weight:900;flex-shrink:0;
+}
+.step-pill.active .sn{background:var(--green);box-shadow:0 0 10px rgba(0,230,118,0.4)}
+.step-pill.done .sn{background:var(--green3)}
+.step-arrow{color:var(--muted2);font-size:0.8rem;padding:0 4px}
+
+/* BUILDER GRID */
+.builder{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+}
+
+/* PANEL */
+.panel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.panel-head{
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg2);
+}
+.panel-icon{font-size:1.1rem}
+.panel-title{font-size:0.88rem;font-weight:700;color:var(--text)}
+.panel-sub{font-size:0.72rem;color:var(--dim);margin-top:1px}
+.panel-body{padding:20px;flex:1;display:flex;flex-direction:column;gap:14px}
+
+/* FORM ELEMENTS */
+label{font-size:0.78rem;font-weight:600;color:var(--dim);display:block;margin-bottom:5px}
+input[type=text],textarea,select{
+  width:100%;
+  background:var(--card);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  padding:10px 14px;
+  color:var(--text);
+  font-size:0.84rem;
+  font-family:'Vazirmatn',sans-serif;
+  outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+  direction:rtl;
+}
+input[type=text]:focus,textarea:focus,select:focus{
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(0,230,118,0.1);
+}
+input[type=text]::placeholder,textarea::placeholder{color:var(--muted2);font-family:'Vazirmatn',sans-serif}
+textarea{resize:vertical;min-height:70px;line-height:1.6}
+select option{background:var(--card);color:var(--text)}
+
+.token-wrap{position:relative}
+.token-wrap input{padding-left:40px}
+.token-eye{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  color:var(--muted);font-size:14px;cursor:pointer;
+  transition:color 0.2s;user-select:none;
+}
+.token-eye:hover{color:var(--green)}
+
+.field-note{font-size:0.7rem;color:var(--muted2);margin-top:4px}
+.field-note a{color:var(--green);text-decoration:none}
+.field-note a:hover{text-decoration:underline}
+
+/* BOT NAME ROW */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* RULES SECTION */
+.rules-list{display:flex;flex-direction:column;gap:8px}
+.rule-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px 14px;
+  display:grid;
+  grid-template-columns:1fr 12px 1fr 32px;
+  align-items:center;gap:8px;
+  transition:border-color 0.2s;
+  position:relative;
+}
+.rule-card:hover{border-color:var(--border2)}
+.rule-arrow{color:var(--muted2);font-size:0.7rem;text-align:center}
+.rule-del{
+  width:28px;height:28px;border-radius:6px;
+  background:rgba(255,82,82,0.08);border:1px solid rgba(255,82,82,0.2);
+  color:var(--red);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  transition:all 0.2s;flex-shrink:0;
+}
+.rule-del:hover{background:rgba(255,82,82,0.15);border-color:rgba(255,82,82,0.4)}
+.rule-input{
+  background:var(--surface) !important;
+  padding:7px 10px !important;
+  font-size:0.78rem !important;
+}
+
+/* ADD RULE */
+.add-rule-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:rgba(0,230,118,0.04);
+  border:1px dashed rgba(0,230,118,0.25);
+  border-radius:10px;padding:12px;
+  color:var(--green2);font-size:0.82rem;
+  cursor:pointer;font-family:'Vazirmatn',sans-serif;
+  transition:all 0.2s;width:100%;font-weight:600;
+}
+.add-rule-btn:hover{background:rgba(0,230,118,0.08);border-color:var(--green)}
+
+/* MATCH TYPE */
+.match-type{
+  display:flex;gap:6px;flex-wrap:wrap;
+}
+.match-chip{
+  padding:4px 10px;border-radius:5px;font-size:0.7rem;font-weight:600;
+  border:1px solid var(--border2);background:var(--card);color:var(--dim);
+  cursor:pointer;transition:all 0.2s;font-family:'Vazirmatn',sans-serif;
+}
+.match-chip.sel{background:rgba(0,230,118,0.1);border-color:var(--green);color:var(--green)}
+
+/* PREVIEW PANEL */
+.preview-panel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  grid-column:1/-1;
+}
+.preview-tabs{
+  display:flex;
+  border-bottom:1px solid var(--border);
+  background:var(--bg2);
+}
+.ptab{
+  padding:13px 20px;font-size:0.82rem;font-weight:600;
+  color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;
+  transition:all 0.2s;font-family:'Vazirmatn',sans-serif;
+}
+.ptab.active{color:var(--green);border-bottom-color:var(--green)}
+.ptab:hover:not(.active){color:var(--text)}
+.preview-body{padding:0;flex:1}
+
+/* CODE OUTPUT */
+.code-block{
+  background:#020804;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.78rem;
+  line-height:1.7;
+  color:#a5d6a7;
+  padding:24px;
+  overflow-x:auto;
+  white-space:pre;
+  min-height:320px;
+  direction:ltr;
+  text-align:left;
+  position:relative;
+}
+.code-block .kw{color:#80cbc4}
+.code-block .st{color:#ce93d8}
+.code-block .cm{color:#455a64}
+.code-block .fn{color:#ffcc02}
+.code-block .num{color:#f48fb1}
+.code-copy{
+  position:absolute;top:16px;left:16px;
+  background:rgba(0,230,118,0.1);border:1px solid var(--border2);
+  border-radius:6px;padding:5px 12px;
+  color:var(--green2);font-size:0.72rem;font-weight:600;
+  cursor:pointer;transition:all 0.2s;font-family:'Vazirmatn',sans-serif;
+}
+.code-copy:hover{background:rgba(0,230,118,0.18)}
+.code-copy.copied{background:rgba(0,230,118,0.2);color:var(--green)}
+
+/* CHAT PREVIEW */
+.chat-preview{
+  padding:20px;
+  background:#020804;
+  min-height:320px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.cp-msg{
+  display:flex;gap:8px;align-items:flex-end;
+}
+.cp-msg.user{flex-direction:row-reverse}
+.cp-av{
+  width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:12px;
+}
+.cp-av.bot-av{background:linear-gradient(135deg,#1b5e20,var(--green3));box-shadow:0 0 10px rgba(0,200,83,0.3)}
+.cp-av.usr-av{background:#1a2a1c}
+.cp-bubble{
+  padding:8px 13px;border-radius:11px;font-size:0.82rem;line-height:1.5;max-width:78%;
+}
+.cp-msg.bot .cp-bubble{background:var(--card);border:1px solid var(--border);border-bottom-right-radius:2px}
+.cp-msg.user .cp-bubble{background:#1b5e20;color:#e8f5e9;border-bottom-left-radius:2px}
+
+/* TEST AREA */
+.test-area{
+  padding:16px;border-top:1px solid var(--border);
+  display:flex;gap:8px;background:var(--bg2);
+}
+.test-input{
+  flex:1;background:var(--card);border:1px solid var(--border2);
+  border-radius:8px;padding:9px 13px;
+  color:var(--text);font-size:0.82rem;font-family:'Vazirmatn',sans-serif;
+  outline:none;transition:border-color 0.2s;
+}
+.test-input:focus{border-color:var(--green)}
+.test-send{
+  background:var(--green);color:#000;border:none;
+  border-radius:8px;width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;transition:all 0.2s;
+  flex-shrink:0;
+}
+.test-send:hover{transform:scale(1.08);box-shadow:0 0 16px rgba(0,230,118,0.4)}
+
+/* DEPLOY SECTION */
+.deploy-section{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;
+  grid-column:1/-1;
+}
+.deploy-head{
+  padding:16px 20px;background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.deploy-head-info{display:flex;align-items:center;gap:10px}
+.deploy-title{font-size:0.88rem;font-weight:700}
+.deploy-sub{font-size:0.72rem;color:var(--dim)}
+.deploy-body{
+  padding:24px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+}
+.deploy-step{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:20px;
+}
+.ds-num{
+  width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,#1b5e20,var(--green3));
+  color:#000;font-weight:900;font-size:0.78rem;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:12px;box-shadow:0 0 12px rgba(0,200,83,0.2);
+}
+.ds-title{font-size:0.85rem;font-weight:700;margin-bottom:6px}
+.ds-desc{font-size:0.76rem;color:var(--dim);line-height:1.6}
+.ds-code{
+  margin-top:10px;background:#020804;border:1px solid var(--border);
+  border-radius:6px;padding:8px 12px;
+  font-family:'JetBrains Mono',monospace;font-size:0.72rem;
+  color:var(--green2);direction:ltr;text-align:left;
+}
+
+/* GENERATE BTN */
+.gen-btn{
+  width:100%;padding:16px;
+  background:var(--green);color:#000;
+  font-weight:900;font-size:1rem;
+  border:none;border-radius:10px;
+  cursor:pointer;font-family:'Vazirmatn',sans-serif;
+  transition:all 0.25s;
+  box-shadow:0 4px 24px rgba(0,230,118,0.3);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  grid-column:1/-1;
+  letter-spacing:-0.3px;
+}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 36px rgba(0,230,118,0.45);filter:brightness(1.08)}
+.gen-btn:active{transform:translateY(0)}
+
+/* DOWNLOAD ROW */
+.dl-row{
+  display:flex;gap:10px;flex-wrap:wrap;
+  padding:16px 20px;background:var(--bg2);border-top:1px solid var(--border);
+}
+.dl-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 18px;border-radius:8px;
+  font-size:0.8rem;font-weight:700;cursor:pointer;
+  font-family:'Vazirmatn',sans-serif;
+  transition:all 0.2s;border:none;
+}
+.dl-btn.primary{background:var(--green);color:#000;box-shadow:0 0 16px rgba(0,230,118,0.25)}
+.dl-btn.primary:hover{transform:translateY(-2px);box-shadow:0 0 28px rgba(0,230,118,0.4)}
+.dl-btn.sec{background:rgba(0,230,118,0.07);color:var(--green2);border:1px solid var(--border2)}
+.dl-btn.sec:hover{background:rgba(0,230,118,0.12)}
+
+.hidden{display:none!important}
+.tab-content{display:none}.tab-content.active{display:flex;flex-direction:column}
+
+/* BOT CARDS */
+#bot-selector{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:14px;
+}
+.bot-card{
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:14px;
+  padding:20px 16px;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;
+  gap:10px;
+  cursor:pointer;
+  transition:all 0.25s;
+  position:relative;
+  overflow:hidden;
+  aspect-ratio:1/1;
+  text-align:center;
+}
+.bot-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 50%,rgba(0,230,118,0.05) 0%,transparent 70%);
+  opacity:0;transition:opacity 0.3s;
+}
+.bot-card:hover:not(.coming-soon)::before{opacity:1}
+.bot-card:hover:not(.coming-soon){border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,230,118,0.08)}
+.bot-card.active{
+  border-color:var(--green);
+  background:rgba(0,230,118,0.05);
+  box-shadow:0 0 0 1px rgba(0,230,118,0.12),0 6px 24px rgba(0,230,118,0.1);
+}
+.bot-card.coming-soon{
+  cursor:not-allowed;
+  opacity:0.5;
+  filter:grayscale(0.4);
+}
+.bot-card-icon{
+  font-size:2rem;
+  width:54px;height:54px;
+  background:linear-gradient(135deg,#0d2b0f,#1b5e20);
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border2);
+  box-shadow:0 0 18px rgba(0,200,83,0.12);
+}
+.bot-card.active .bot-card-icon{box-shadow:0 0 22px rgba(0,230,118,0.28)}
+.bot-card-name{font-size:0.82rem;font-weight:800;color:var(--text);line-height:1.3}
+.bot-card-desc{display:none}
+.bot-card-tags{display:none}
+.soon-badge{
+  font-size:0.58rem;font-weight:700;
+  padding:2px 7px;border-radius:10px;
+  background:rgba(255,213,79,0.12);
+  border:1px solid rgba(255,213,79,0.3);
+  color:var(--gold);
+  letter-spacing:0.3px;
+  display:block;
+}
+.bot-card-check{
+  position:absolute;top:10px;left:10px;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--green);color:#000;
+  font-size:0.65rem;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 10px rgba(0,230,118,0.4);
+  transition:all 0.2s;
+}
+.bot-card:not(.active) .bot-card-check{
+  background:var(--surface);
+  border:1.5px solid var(--border2);
+  color:transparent;
+  box-shadow:none;
+}
+.bot-card-lock{
+  position:absolute;top:10px;left:10px;
+  font-size:0.8rem;
+}
+
+@media(max-width:600px){
+  #bot-selector{grid-template-columns:repeat(2,1fr)}
+}
+
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(0,230,118,0.2);border-radius:3px}
+
+@media(max-width:768px){
+  main{padding:24px 16px 60px}
+  .builder{grid-template-columns:1fr}
+  .deploy-body{grid-template-columns:1fr}
+  .gen-btn{grid-column:1}
+  nav{padding:12px 16px}
+}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<nav>
+  <div class="logo">
+    <div class="logo-box">🤖</div>
+    <span style="color:var(--dim);font-weight:300">mr</span> <span style="color:rgba(0,230,118,0.3);font-weight:300;font-size:0.9rem">bot</span> <span style="color:rgba(0,230,118,0.2);font-weight:300;font-size:0.8rem;letter-spacing:1px">.fun</span>
+  </div>
+  <div class="nav-badge">⚡ ربات‌ساز بصری</div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <h1>ربات تلگرام <span>بدون کد</span> بساز</h1>
+    <p>توکن بده، قوانین تعریف کن — کد آماده تحویل بگیر و روی Railway دپلوی کن</p>
+  </div>
+
+  <div class="steps-row">
+    <div class="step-pill active" id="sp1"><span class="sn">۱</span> توکن و مشخصات</div>
+    <div class="step-arrow">←</div>
+    <div class="step-pill" id="sp2"><span class="sn">۲</span> قوانین ربات</div>
+    <div class="step-arrow">←</div>
+    <div class="step-pill" id="sp3"><span class="sn">۳</span> کد + دپلوی</div>
+  </div>
+
+  <div class="builder" id="builder-grid">
+
+    <!-- BOT SELECTOR -->
+    <div style="grid-column:1/-1;margin-bottom:8px">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--dim);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+        <span style="color:var(--green)">🤖</span> انتخاب نوع ربات
+      </div>
+      <div id="bot-selector">
+
+        <!-- BOT CARD 1: MrBot Standard -->
+        <div class="bot-card" id="card-mrbot" onclick="selectBot('mrbot')">
+          <div class="bot-card-check" id="check-mrbot">✓</div>
+          <div class="bot-card-icon">🤖</div>
+          <div class="bot-card-name">MrBot Standard</div>
+        </div>
+
+        <!-- BOT CARD 2: Mirza Pro (Coming Soon) -->
+        <div class="bot-card coming-soon" id="card-mirza">
+          <div class="bot-card-lock">🔒</div>
+          <div class="bot-card-icon">👑</div>
+          <div class="bot-card-name">میرزا پرو</div>
+          <span class="soon-badge">به زودی</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PANEL 1: TOKEN & INFO -->
+    <div class="panel hidden" id="panel-token">
+      <div class="panel-head">
+        <span class="panel-icon">🔑</span>
+        <div>
+          <div class="panel-title">توکن و مشخصات ربات</div>
+          <div class="panel-sub">اطلاعات پایه ربات تلگرامت رو وارد کن</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div>
+          <label>توکن ربات (BotFather Token)</label>
+          <div class="token-wrap">
+            <input type="password" id="bot-token" placeholder="1234567890:AAF...">
+            <span class="token-eye" id="toggle-token" title="نمایش/مخفی">👁</span>
+          </div>
+          <div class="field-note">از <a href="https://t.me/BotFather" target="_blank">@BotFather</a> در تلگرام بگیر ← /newbot</div>
+        </div>
+        <div class="row2">
+          <div>
+            <label>نام ربات (فارسی/انگلیسی)</label>
+            <input type="text" id="bot-name" placeholder="ربات من">
+          </div>
+          <div>
+            <label>یوزرنیم ربات</label>
+            <input type="text" id="bot-username" placeholder="@mybot">
+          </div>
+        </div>
+        <div>
+          <label>پیام خوش‌آمدگویی (/start)</label>
+          <textarea id="welcome-msg" placeholder="سلام! من ربات شما هستم. چطور می‌تونم کمک کنم؟" style="min-height:90px"></textarea>
+        </div>
+        <div>
+          <label>پیام ناشناخته (وقتی چیزی نفهمید)</label>
+          <input type="text" id="unknown-msg" placeholder="متوجه نشدم. دوباره امتحان کن 🤔">
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 2: RULES -->
+    <div class="panel hidden" id="panel-rules">
+      <div class="panel-head">
+        <span class="panel-icon">⚙️</span>
+        <div>
+          <div class="panel-title">قوانین پاسخ‌دهی</div>
+          <div class="panel-sub">بگو کِی چی جواب بده</div>
+        </div>
+      </div>
+      <div class="panel-body" style="gap:10px">
+        <div>
+          <label>نوع تطابق پیش‌فرض</label>
+          <div class="match-type">
+            <span class="match-chip sel" data-m="contains">شامل باشه</span>
+            <span class="match-chip" data-m="exact">دقیقاً همین</span>
+            <span class="match-chip" data-m="startswith">شروع بشه با</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
+          <label style="margin:0;font-size:0.82rem;color:var(--text)">قوانین تعریف‌شده</label>
+          <span id="rule-count" style="font-size:0.7rem;color:var(--green2);font-weight:700">۰ قانون</span>
+        </div>
+        <div class="rules-list" id="rules-list"></div>
+        <button class="add-rule-btn" id="add-rule-btn">+ افزودن قانون جدید</button>
+        <div class="field-note" style="padding:8px;background:rgba(0,230,118,0.04);border:1px solid var(--border);border-radius:8px">
+          💡 مثال: اگه کاربر گفت «سلام» → ربات بگه «سلام! چطوری؟»<br>
+          می‌تونی چند قانون تعریف کنی. هر قانون یه شرط و یه پاسخ داره.
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERATE BTN -->
+    <button class="gen-btn hidden" id="gen-btn">
+      <span>⚡</span> ساخت کد ربات
+    </button>
+
+    <!-- PREVIEW PANEL -->
+    <div class="preview-panel" id="preview-panel" style="display:none">
+      <div class="preview-tabs">
+        <div class="ptab active" data-tab="chat">🗨 پیش‌نمایش چت</div>
+        <div class="ptab" data-tab="code">🐍 کد Python</div>
+        <div class="ptab" data-tab="railway">🚂 railway.json</div>
+        <div class="ptab" data-tab="req">📦 requirements.txt</div>
+      </div>
+      <div class="preview-body">
+        <!-- CHAT PREVIEW -->
+        <div class="tab-content active" id="tab-chat">
+          <div class="chat-preview" id="chat-preview">
+            <div style="text-align:center;color:var(--muted2);font-size:0.78rem;padding:40px 20px">
+              بعد از ساخت ربات، اینجا می‌تونی باهاش تست کنی 👆
+            </div>
+          </div>
+          <div class="test-area">
+            <input type="text" class="test-input" id="test-input" placeholder="پیامت رو بنویس و تست کن..." disabled>
+            <button class="test-send" id="test-send" disabled>➤</button>
+          </div>
+        </div>
+        <!-- CODE -->
+        <div class="tab-content" id="tab-code">
+          <div class="code-block" id="code-out" style="direction:ltr;text-align:left">
+            <button class="code-copy" id="copy-code">کپی کد</button>
+            <span id="code-content"></span>
+          </div>
+        </div>
+        <!-- RAILWAY -->
+        <div class="tab-content" id="tab-railway">
+          <div class="code-block" style="direction:ltr;text-align:left">
+            <button class="code-copy" id="copy-railway">کپی</button>
+            <span id="railway-content"></span>
+          </div>
+        </div>
+        <!-- REQUIREMENTS -->
+        <div class="tab-content" id="tab-req">
+          <div class="code-block" style="direction:ltr;text-align:left">
+            <span id="req-content"></span>
+          </div>
+        </div>
+      </div>
+      <div class="dl-row">
+        <button class="dl-btn primary" id="dl-main">⬇ دانلود bot.py</button>
+        <button class="dl-btn sec" id="dl-railway">⬇ railway.json</button>
+        <button class="dl-btn sec" id="dl-req">⬇ requirements.txt</button>
+        <button class="dl-btn sec" id="dl-all">📦 همه فایل‌ها (ZIP)</button>
+      </div>
+    </div>
+
+    <!-- DEPLOY GUIDE -->
+    <div class="deploy-section" id="deploy-section" style="display:none">
+      <div class="deploy-head">
+        <div class="deploy-head-info">
+          <span style="font-size:1.2rem">🚂</span>
+          <div>
+            <div class="deploy-title">راهنمای دپلوی روی Railway</div>
+            <div class="deploy-sub">فایل‌ها رو آپلود کن — ربات ۲۴/۷ روشنه</div>
+          </div>
+        </div>
+        <a href="https://railway.app" target="_blank" style="background:rgba(0,230,118,0.08);border:1px solid var(--border2);border-radius:8px;padding:7px 16px;color:var(--green2);text-decoration:none;font-size:0.78rem;font-weight:700">railway.app ←</a>
+      </div>
+      <div class="deploy-body">
+        <div class="deploy-step">
+          <div class="ds-num">۱</div>
+          <div class="ds-title">فایل‌ها رو دانلود کن</div>
+          <div class="ds-desc">سه فایل زیر رو دانلود کن و داخل یه پوشه بذار:</div>
+          <div class="ds-code">bot.py<br>railway.json<br>requirements.txt</div>
+        </div>
+        <div class="deploy-step">
+          <div class="ds-num">۲</div>
+          <div class="ds-title">Railway رو باز کن</div>
+          <div class="ds-desc">در <strong>railway.app</strong> یه پروژه جدید بساز. «Deploy from local» رو بزن و پوشه رو آپلود کن.</div>
+          <div class="ds-code">New Project → Deploy from local files</div>
+        </div>
+        <div class="deploy-step">
+          <div class="ds-num">۳</div>
+          <div class="ds-title">Environment Variable بذار</div>
+          <div class="ds-desc">در تب Variables این متغیر رو اضافه کن (توکنت رو نذاری توی کد):</div>
+          <div class="ds-code">BOT_TOKEN = <span id="deploy-token-hint" style="color:#f48fb1">your_token_here</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// STATE
+let rules=[];
+let matchMode='contains';
+let botBuilt=false;
+let selectedBot='mrbot';
+
+function selectBot(type){
+  if(type==='mirza') return;
+  const card=document.getElementById('card-'+type);
+  const panels=['panel-token','panel-rules','gen-btn'];
+  if(card.classList.contains('active')){
+    card.classList.remove('active');
+    selectedBot=null;
+    panels.forEach(id=>document.getElementById(id).classList.add('hidden'));
+  } else {
+    document.querySelectorAll('.bot-card:not(.coming-soon)').forEach(c=>c.classList.remove('active'));
+    card.classList.add('active');
+    selectedBot=type;
+    panels.forEach(id=>document.getElementById(id).classList.remove('hidden'));
+  }
+}
+
+
+// DOM
+const rulesList=document.getElementById('rules-list');
+const ruleCount=document.getElementById('rule-count');
+const previewPanel=document.getElementById('preview-panel');
+const deploySection=document.getElementById('deploy-section');
+
+// Match chips
+document.querySelectorAll('.match-chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    document.querySelectorAll('.match-chip').forEach(c=>c.classList.remove('sel'));
+    chip.classList.add('sel');
+    matchMode=chip.dataset.m;
+  });
+});
+
+// Token toggle
+document.getElementById('toggle-token').addEventListener('click',()=>{
+  const inp=document.getElementById('bot-token');
+  inp.type=inp.type==='password'?'text':'password';
+});
+
+// Add rule
+function addRule(trigger='',reply=''){
+  const id=Date.now()+''+Math.random();
+  rules.push({id,trigger,reply});
+  renderRules();
+}
+
+function deleteRule(id){
+  rules=rules.filter(r=>r.id!==id);
+  renderRules();
+}
+
+function renderRules(){
+  rulesList.innerHTML='';
+  rules.forEach(rule=>{
+    const el=document.createElement('div');
+    el.className='rule-card';
+    el.innerHTML=`
+      <input type="text" class="rule-input" placeholder="اگه گفت... (مثلاً: سلام)" value="${escHtml(rule.trigger)}" data-id="${rule.id}" data-field="trigger">
+      <div class="rule-arrow">→</div>
+      <input type="text" class="rule-input" placeholder="بگه... (مثلاً: سلام! 👋)" value="${escHtml(rule.reply)}" data-id="${rule.id}" data-field="reply">
+      <div class="rule-del" data-id="${rule.id}">✕</div>
+    `;
+    rulesList.appendChild(el);
+  });
+  // events
+  rulesList.querySelectorAll('.rule-input').forEach(inp=>{
+    inp.addEventListener('input',e=>{
+      const r=rules.find(r=>r.id===e.target.dataset.id);
+      if(r)r[e.target.dataset.field]=e.target.value;
+    });
+  });
+  rulesList.querySelectorAll('.rule-del').forEach(btn=>{
+    btn.addEventListener('click',e=>deleteRule(e.target.dataset.id));
+  });
+  // count
+  const n=rules.length;
+  const fa=['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹','۱۰','۱۱','۱۲','۱۳','۱۴','۱۵'];
+  ruleCount.textContent=(fa[n]||n)+' قانون';
+}
+
+document.getElementById('add-rule-btn').addEventListener('click',()=>addRule());
+
+// Seed default rules
+addRule('سلام','سلام! خوش اومدی 👋 چطور می‌تونم کمکت کنم؟');
+addRule('ممنون','خواهش می‌کنم 😊');
+addRule('قیمت','برای اطلاع از قیمت‌ها با ادمین تماس بگیر: @admin');
+
+// Generate
+document.getElementById('gen-btn').addEventListener('click',generate);
+
+function generate(){
+  const token=document.getElementById('bot-token').value.trim();
+  const name=document.getElementById('bot-name').value.trim()||'ربات من';
+  const welcome=document.getElementById('welcome-msg').value.trim()||'سلام! چطور می‌تونم کمک کنم؟';
+  const unknown=document.getElementById('unknown-msg').value.trim()||'متوجه نشدم. دوباره امتحان کن 🤔';
+
+  if(!token){
+    flashInput('bot-token');return;
+  }
+
+  const validRules=rules.filter(r=>r.trigger.trim()&&r.reply.trim());
+
+  // Build Python code
+  const rulesCode=validRules.map(r=>{
+    const t=r.trigger.trim().replace(/'/g,"\\'");
+    const rep=r.reply.trim().replace(/'/g,"\\'").replace(/\n/g,'\\n');
+    if(matchMode==='exact') return `    if text == '${t}':\n        await update.message.reply_text('${rep}')`;
+    if(matchMode==='startswith') return `    if text.startswith('${t}'):\n        await update.message.reply_text('${rep}')`;
+    return `    if '${t}' in text:\n        await update.message.reply_text('${rep}')`;
+  }).join('\n    el');
+
+  const hasRules=validRules.length>0;
+
+  const py=`import os
+import logging
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+
+# تنظیمات لاگ
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+BOT_NAME = '${name.replace(/'/g,"\\'")}' 
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """پاسخ به دستور /start"""
+    await update.message.reply_text(
+        '${welcome.replace(/'/g,"\\'").replace(/\n/g,'\\n')}'
+    )
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """پردازش پیام‌های متنی"""
+    text = update.message.text${matchMode!=='exact'?'.lower()':''}
+${hasRules?rulesCode:'    # هنوز قانونی تعریف نشده'}
+    ${hasRules?'else:\n        await update.message.reply_text(\''+unknown.replace(/'/g,"\\'")+'\')':`await update.message.reply_text('${unknown.replace(/'/g,"\\'")}')`}
+
+def main():
+    token = os.environ.get('BOT_TOKEN', '${token}')
+    app = ApplicationBuilder().token(token).build()
+    app.add_handler(CommandHandler('start', start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    logger.info(f'ربات {BOT_NAME} شروع به کار کرد...')
+    app.run_polling()
+
+if __name__ == '__main__':
+    main()
+`;
+
+  const railwayJson=`{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "python bot.py",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}`;
+
+  const req=`python-telegram-bot==20.7
+`;
+
+  // Show preview
+  previewPanel.style.display='flex';
+  previewPanel.style.flexDirection='column';
+  deploySection.style.display='block';
+
+  // Fill code
+  document.getElementById('code-content').textContent=py;
+  document.getElementById('railway-content').textContent=railwayJson;
+  document.getElementById('req-content').textContent=req;
+
+  // Token hint in deploy
+  const hint=document.getElementById('deploy-token-hint');
+  hint.textContent=token?token.substring(0,12)+'...':'your_token_here';
+
+  // Update steps
+  document.getElementById('sp1').classList.add('done');
+  document.getElementById('sp2').classList.add('done');
+  document.getElementById('sp3').classList.add('active');
+
+  // Setup chat test
+  setupChatTest(validRules,welcome,unknown,matchMode);
+  botBuilt=true;
+
+  // Store for downloads
+  window._botFiles={py,railwayJson,req};
+
+  // Scroll
+  previewPanel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// Chat test
+function setupChatTest(rules,welcome,unknown,mode){
+  const chatPrev=document.getElementById('chat-preview');
+  const testInput=document.getElementById('test-input');
+  const testSend=document.getElementById('test-send');
+
+  chatPrev.innerHTML='';
+  testInput.disabled=false;
+  testSend.disabled=false;
+
+  // Welcome msg
+  addChatMsg(chatPrev,'bot',welcome);
+
+  function sendTest(){
+    const val=testInput.value.trim();
+    if(!val)return;
+    addChatMsg(chatPrev,'user',val);
+    testInput.value='';
+    setTimeout(()=>{
+      const reply=getBotReply(val,rules,unknown,mode);
+      addChatMsg(chatPrev,'bot',reply);
+    },400);
+  }
+
+  testSend.onclick=sendTest;
+  testInput.onkeydown=e=>{if(e.key==='Enter')sendTest()};
+}
+
+function getBotReply(text,rules,unknown,mode){
+  const t=mode!=='exact'?text.toLowerCase():text;
+  for(const rule of rules){
+    const trigger=rule.trigger.trim();
+    const tl=mode!=='exact'?trigger.toLowerCase():trigger;
+    if(mode==='exact'&&t===tl)return rule.reply;
+    if(mode==='startswith'&&t.startsWith(tl))return rule.reply;
+    if(mode==='contains'&&t.includes(tl))return rule.reply;
+  }
+  return unknown;
+}
+
+function addChatMsg(container,type,text){
+  const d=document.createElement('div');
+  d.className=`cp-msg ${type}`;
+  const av=type==='bot'?'<div class="cp-av bot-av">🤖</div>':'<div class="cp-av usr-av">👤</div>';
+  d.innerHTML=(type==='bot'?av:'')+`<div class="cp-bubble">${escHtml(text)}</div>`+(type==='user'?av:'');
+  container.appendChild(d);
+  container.scrollTop=container.scrollHeight;
+}
+
+// Tabs
+document.querySelectorAll('.ptab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Copy buttons
+document.getElementById('copy-code').addEventListener('click',function(){
+  const code=document.getElementById('code-content').textContent;
+  navigator.clipboard.writeText(code);
+  this.textContent='✓ کپی شد';this.classList.add('copied');
+  setTimeout(()=>{this.textContent='کپی کد';this.classList.remove('copied')},1800);
+});
+document.getElementById('copy-railway').addEventListener('click',function(){
+  navigator.clipboard.writeText(document.getElementById('railway-content').textContent);
+  this.textContent='✓';setTimeout(()=>{this.textContent='کپی'},1500);
+});
+
+// Downloads
+function dl(filename,content){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:'text/plain'}));
+  a.download=filename;a.click();
+}
+
+document.getElementById('dl-main').addEventListener('click',()=>window._botFiles&&dl('bot.py',window._botFiles.py));
+document.getElementById('dl-railway').addEventListener('click',()=>window._botFiles&&dl('railway.json',window._botFiles.railwayJson));
+document.getElementById('dl-req').addEventListener('click',()=>window._botFiles&&dl('requirements.txt',window._botFiles.req));
+
+// Download all as ZIP (using JSZip via CDN)
+document.getElementById('dl-all').addEventListener('click',async()=>{
+  if(!window._botFiles)return;
+  const script=document.createElement('script');
+  script.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  document.head.appendChild(script);
+  script.onload=async()=>{
+    const zip=new JSZip();
+    zip.file('bot.py',window._botFiles.py);
+    zip.file('railway.json',window._botFiles.railwayJson);
+    zip.file('requirements.txt',window._botFiles.req);
+    const blob=await zip.generateAsync({type:'blob'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='mrbot-project.zip';a.click();
+  };
+});
+
+function flashInput(id){
+  const el=document.getElementById(id);
+  el.style.borderColor='var(--red)';
+  el.style.boxShadow='0 0 0 3px rgba(255,82,82,0.15)';
+  el.focus();
+  setTimeout(()=>{el.style.borderColor='';el.style.boxShadow=''},1800);
+}
+
+function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+</script>
+</body>
+</html>
