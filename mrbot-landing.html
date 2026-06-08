@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MrBot.fun</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik+Wet+Paint&family=Rubik:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f0e8;
+    --accent: #e8ff00;
+    --accent2: #ff3cac;
+    --accent3: #00f5d4;
+  }
+
+  html, body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Rubik', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.5;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    overflow: hidden;
+  }
+
+  /* Background glow blobs */
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+    animation: blobFloat 8s ease-in-out infinite;
+  }
+  .blob-1 { width: 420px; height: 420px; background: var(--accent2); top: -100px; left: -120px; animation-delay: 0s; }
+  .blob-2 { width: 320px; height: 320px; background: var(--accent3); bottom: -80px; right: -60px; animation-delay: -3s; }
+  .blob-3 { width: 200px; height: 200px; background: var(--accent); top: 50%; left: 55%; animation-delay: -5s; }
+
+  @keyframes blobFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(20px, -30px) scale(1.05); }
+    66% { transform: translate(-15px, 20px) scale(0.95); }
+  }
+
+  /* ── DISPLAY TEXT ── */
+  .title-wrap {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    line-height: 0.88;
+    user-select: none;
+  }
+
+  .big-text {
+    font-family: 'Rubik Wet Paint', cursive;
+    font-size: clamp(5rem, 18vw, 17rem);
+    color: var(--white);
+    display: block;
+    letter-spacing: -0.02em;
+    animation: fadeSlideDown 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .big-text.top { animation-delay: 0.1s; }
+  .big-text.bottom {
+    animation-delay: 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15em;
+    flex-wrap: wrap;
+  }
+
+  .big-text .accent-word {
+    color: var(--accent);
+    display: inline-block;
+    animation: accentPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+  }
+  .big-text .accent2-word {
+    color: var(--accent3);
+    display: inline-block;
+    animation: accentPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.65s both;
+  }
+
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes accentPop {
+    from { opacity: 0; transform: scale(0.6) rotate(-5deg); }
+    to { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+
+  /* ── SCENE canvas ── */
+  .scene {
+    position: relative;
+    z-index: 3;
+    margin: -0.5rem 0;
+    width: min(600px, 95vw);
+    height: min(420px, 70vw);
+    animation: sceneEntry 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+  }
+  @keyframes sceneEntry {
+    from { opacity: 0; transform: translateY(60px) scale(0.85); }
+    to   { opacity: 1; transform: translateY(0)   scale(1);    }
+  }
+  #botCanvas { width: 100%; height: 100%; display: block; }
+
+  /* ── TAG LINE ── */
+  .tagline {
+    position: relative;
+    z-index: 2;
+    font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--white);
+    opacity: 0.5;
+    margin-top: 0.5rem;
+    animation: fadeSlideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+  }
+
+  .cta-row {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeSlideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.75s both;
+  }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .btn {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 900;
+    font-size: clamp(0.85rem, 2.2vw, 1rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.85rem 2.2rem;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn:hover { transform: translateY(-3px) scale(1.03); }
+  .btn:active { transform: translateY(0) scale(0.98); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #0088cc 0%, #229ED9 50%, #0077b6 100%);
+    color: #ffffff;
+    box-shadow: 0 0 35px rgba(0,136,204,0.55), 0 4px 20px rgba(0,119,182,0.4);
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    padding: 1rem 2.8rem;
+    font-family: 'Rubik Wet Paint', cursive;
+    border: 1.5px solid rgba(255,255,255,0.15);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #006daa 0%, #0088cc 50%, #005f94 100%);
+    box-shadow: 0 0 55px rgba(0,136,204,0.75), 0 6px 30px rgba(0,119,182,0.6);
+  }
+  .btn-primary:hover { box-shadow: 0 0 50px rgba(232,255,0,0.6); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--white);
+    border: 2px solid rgba(245,240,232,0.25);
+  }
+  .btn-secondary:hover { border-color: var(--white); background: rgba(245,240,232,0.05); }
+
+  /* ── SCROLLING TICKER ── */
+  .ticker-wrap {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    overflow: hidden;
+    margin-top: 3rem;
+    border-top: 1px solid rgba(245,240,232,0.08);
+    border-bottom: 1px solid rgba(245,240,232,0.08);
+    padding: 0.9rem 0;
+  }
+  .ticker {
+    display: flex;
+    gap: 3rem;
+    width: max-content;
+    animation: ticker 18s linear infinite;
+  }
+  .ticker-item {
+    font-family: 'Rubik Wet Paint', cursive;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    color: var(--white);
+    opacity: 0.25;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .ticker-item .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 1;
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── FEATURES ── */
+  .features {
+    padding: 5rem 1.5rem 6rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5px;
+    background: rgba(245,240,232,0.08);
+    border: 1.5px solid rgba(245,240,232,0.08);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .feat-card {
+    background: var(--black);
+    padding: 2.5rem 2rem;
+    transition: background 0.25s;
+    cursor: default;
+  }
+  .feat-card:hover { background: #111; }
+
+  .feat-icon {
+    font-size: 2rem;
+    margin-bottom: 1.2rem;
+    display: block;
+  }
+
+  .feat-title {
+    font-family: 'Rubik Wet Paint', cursive;
+    font-size: 1.35rem;
+    color: var(--white);
+    margin-bottom: 0.6rem;
+    line-height: 1.1;
+  }
+
+  .feat-desc {
+    font-size: 0.9rem;
+    color: rgba(245,240,232,0.45);
+    line-height: 1.65;
+  }
+
+  /* ── DOMAIN CALLOUT ── */
+  .domain-callout {
+    text-align: center;
+    padding: 4rem 1.5rem 5rem;
+  }
+  .domain-label {
+    font-family: 'Rubik Wet Paint', cursive;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    color: rgba(245,240,232,0.15);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+  .domain-url {
+    font-family: 'Rubik Wet Paint', cursive;
+    font-size: clamp(2.2rem, 8vw, 5.5rem);
+    color: var(--white);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .domain-url span { color: var(--accent); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid rgba(245,240,232,0.08);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    font-size: 0.78rem;
+    color: rgba(245,240,232,0.2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .scene { height: min(280px, 70vw); margin: -0.5rem 0; }
+    .cta-row { flex-direction: column; align-items: center; }
+    .btn { width: 100%; max-width: 280px; justify-content: center; }
+    .features { padding: 3rem 1rem 4rem; }
+    .feat-card { padding: 2rem 1.5rem; }
+    .blob-1 { width: 250px; height: 250px; }
+    .blob-2 { width: 200px; height: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <!-- BG blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- Top text -->
+  <div class="title-wrap">
+    <span class="big-text top">MR</span>
+  </div>
+
+  <!-- Animated Scene (Canvas) -->
+  <div class="scene">
+    <canvas id="botCanvas"></canvas>
+  </div>
+
+  <script>
+  (function(){
+    const canvas = document.getElementById('botCanvas');
+    const ctx    = canvas.getContext('2d');
+    const DPR    = window.devicePixelRatio || 1;
+    const W = 600, H = 420;
+
+    function resize(){
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const s = Math.min(rect.width/W, rect.height/H);
+      canvas.width  = W * DPR;
+      canvas.height = H * DPR;
+      canvas.style.width  = W * s + 'px';
+      canvas.style.height = H * s + 'px';
+      ctx.scale(DPR, DPR);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ── palette
+    const C = {
+      yellow:'#e8ff00', pink:'#ff3cac', cyan:'#00f5d4',
+      blue:'#1a6fff',   green:'#22c55e', orange:'#ff8c00',
+      white:'#f5f0e8',  dark:'#0a0a0a',  mid:'#1a1a1a'
+    };
+
+    // ── helpers
+    const ease = t => t<.5 ? 2*t*t : -1+(4-2*t)*t;
+    const sin  = (t,s=1,o=0) => Math.sin(t*s+o);
+    const cos  = (t,s=1,o=0) => Math.cos(t*s+o);
+    const lerp = (a,b,t) => a+(b-a)*t;
+
+    function rr(cx,cy,w,h,r,fill,stroke,sw=0){
+      ctx.beginPath();
+      ctx.roundRect(cx-w/2, cy-h/2, w, h, r);
+      if(fill){ ctx.fillStyle=fill; ctx.fill(); }
+      if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke(); }
+    }
+    function circ(cx,cy,r,fill,stroke,sw=0){
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+      if(fill){ ctx.fillStyle=fill; ctx.fill(); }
+      if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke(); }
+    }
+    function shadow(color, blur){
+      ctx.shadowColor=color; ctx.shadowBlur=blur;
+    }
+    function noShadow(){ ctx.shadowColor='transparent'; ctx.shadowBlur=0; }
+
+    // ── ISO platform
+    // top diamond: center cx,cy; half-width hw; half-depth hd; thickness th
+    function isoPlatform(cx, cy, hw, hd, th, top, left, right){
+      // top face
+      ctx.beginPath();
+      ctx.moveTo(cx,     cy-hd);
+      ctx.lineTo(cx+hw,  cy);
+      ctx.lineTo(cx,     cy+hd);
+      ctx.lineTo(cx-hw,  cy);
+      ctx.closePath();
+      ctx.fillStyle = top; ctx.fill();
+      // left face
+      ctx.beginPath();
+      ctx.moveTo(cx-hw, cy);
+      ctx.lineTo(cx,    cy+hd);
+      ctx.lineTo(cx,    cy+hd+th);
+      ctx.lineTo(cx-hw, cy+th);
+      ctx.closePath();
+      ctx.fillStyle = left; ctx.fill();
+      // right face
+      ctx.beginPath();
+      ctx.moveTo(cx,    cy+hd);
+      ctx.lineTo(cx+hw, cy);
+      ctx.lineTo(cx+hw, cy+th);
+      ctx.lineTo(cx,    cy+hd+th);
+      ctx.closePath();
+      ctx.fillStyle = right; ctx.fill();
+    }
+
+    // ── glowing star spark
+    function star(cx,cy,r,color,rot){
+      ctx.save();
+      ctx.translate(cx,cy); ctx.rotate(rot);
+      shadow(color,14);
+      ctx.fillStyle=color;
+      ctx.beginPath();
+      for(let i=0;i<8;i++){
+        const a=i*Math.PI/4, ri=i%2===0?r:r*.42;
+        i===0?ctx.moveTo(Math.cos(a)*ri,Math.sin(a)*ri):ctx.lineTo(Math.cos(a)*ri,Math.sin(a)*ri);
+      }
+      ctx.closePath(); ctx.fill();
+      noShadow();
+      ctx.restore();
+    }
+
+    // ── floating particle
+    const particles = Array.from({length:22},(_,i)=>({
+      x: 60+Math.random()*480, y: 30+Math.random()*360,
+      r: 1.5+Math.random()*3,
+      color:[C.yellow,C.pink,C.cyan][i%3],
+      vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4,
+      phase: Math.random()*Math.PI*2,
+    }));
+
+    // ── chat bubble
+    function bubble(cx,cy,w,h,r,fill,text,textColor='#0a0a0a'){
+      ctx.save();
+      ctx.beginPath(); ctx.roundRect(cx,cy,w,h,r);
+      shadow(fill,20); ctx.fillStyle=fill; ctx.fill(); noShadow();
+      // tail
+      ctx.beginPath();
+      ctx.moveTo(cx+12,cy+h); ctx.lineTo(cx+6,cy+h+10); ctx.lineTo(cx+24,cy+h);
+      ctx.fillStyle=fill; ctx.fill();
+      ctx.fillStyle=textColor; ctx.font='bold 11px Rubik,sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(text, cx+w/2, cy+h/2);
+      ctx.restore();
+    }
+
+    // ── BOT drawing function
+    // (cx, cy) = feet center, bobY = vertical offset
+    function drawBot(cx, cy, bobY, bodyColor, eyeType, armAngle, antennaAngle, accessory, label, blinkT){
+      ctx.save();
+      ctx.translate(cx, cy + bobY);
+
+      const bw=52, bh=44, hw=44, hh=34;
+
+      // shadow under bot
+      ctx.save();
+      shadow('rgba(0,0,0,0)', 0);
+      ctx.fillStyle='rgba(0,0,0,0.25)';
+      ctx.beginPath();
+      ctx.ellipse(0, 10, bw*.6, 8, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+
+      // ── legs
+      rr(-14, 4, 12, 20, 6, bodyColor);
+      rr( 14, 4, 12, 20, 6, bodyColor);
+      // feet
+      rr(-14, 16, 16, 8, 4, C.dark);
+      rr( 14, 16, 16, 8, 4, C.dark);
+
+      // ── body
+      ctx.save();
+      shadow(bodyColor, 18);
+      rr(0, -14, bw, bh, 12, bodyColor);
+      noShadow();
+      ctx.restore();
+
+      // chest panel detail
+      rr(0, -14, bw*.55, bh*.4, 6, C.dark);
+      // chest screen glow
+      ctx.fillStyle = bodyColor==='#e8ff00'?'#00f5d4':bodyColor==='#ff3cac'?'#e8ff00':'#ff3cac';
+      ctx.globalAlpha=.5;
+      rr(0, -15, bw*.46, bh*.3, 4, ctx.fillStyle);
+      ctx.globalAlpha=1;
+
+      // left arm
+      ctx.save();
+      ctx.translate(-bw/2-4, -14);
+      ctx.rotate(armAngle*-1);
+      rr(-8, 0, 18, 10, 5, bodyColor);
+      ctx.restore();
+
+      // right arm (waving)
+      ctx.save();
+      ctx.translate(bw/2+4, -14);
+      ctx.rotate(armAngle);
+      rr(8, 0, 18, 10, 5, bodyColor);
+      ctx.restore();
+
+      // ── head
+      ctx.save();
+      shadow(bodyColor, 12);
+      rr(0, -42, hw, hh, 10, C.white);
+      noShadow();
+      ctx.restore();
+
+      // ── antenna
+      ctx.save();
+      ctx.translate(0, -59);
+      ctx.rotate(antennaAngle);
+      ctx.strokeStyle=C.white; ctx.lineWidth=3; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-14); ctx.stroke();
+      shadow(bodyColor,16);
+      circ(0,-17,5,bodyColor);
+      noShadow();
+      ctx.restore();
+
+      // ── eyes
+      if(eyeType==='round'){
+        const ey=-44, blink = blinkT<.92?1:.15;
+        ctx.save(); ctx.scale(1,blink);
+        circ(-12,ey/blink,7,C.dark); circ(12,ey/blink,7,C.dark);
+        ctx.restore();
+        if(blink>.5){
+          circ(-10,-46,2.5,C.white); circ(14,-46,2.5,C.white);
+        }
+      } else if(eyeType==='square'){
+        const blink=blinkT<.92?1:.1;
+        ctx.save(); ctx.scale(1,blink);
+        rr(-12,-44/blink,10,10,2,C.dark);
+        rr( 12,-44/blink,10,10,2,C.dark);
+        ctx.restore();
+        if(blink>.5){ circ(-10,-46,2,C.white); circ(14,-46,2,C.white); }
+      } else {
+        // visor
+        const blink=blinkT<.92?1:.1;
+        ctx.save(); ctx.scale(1,blink);
+        rr(0,-44/blink,34,10,4,bodyColor);
+        ctx.restore();
+        ctx.fillStyle=C.dark; ctx.globalAlpha=.7;
+        rr(0,-44,32,8,3,C.dark);
+        ctx.globalAlpha=1;
+      }
+
+      // ── mouth
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(0,-31,7,0.2,Math.PI-.2);
+      ctx.strokeStyle=C.dark+'99'; ctx.lineWidth=2.5; ctx.lineCap='round';
+      ctx.stroke();
+      ctx.restore();
+
+      // ── accessory
+      if(accessory==='laptop'){
+        // laptop body
+        rr(0, 20, 54, 30, 5, C.dark);
+        // screen
+        rr(0, 19, 46, 22, 3, '#0d1117');
+        // code lines
+        for(let i=0;i<4;i++){
+          ctx.fillStyle=i===0?C.cyan:i===1?C.yellow:'#ffffff44';
+          ctx.globalAlpha=.8;
+          rr(-12+i*2, 13+i*6, 22-i*4, 2.5, 1, ctx.fillStyle);
+          ctx.globalAlpha=1;
+        }
+      } else if(accessory==='paper'){
+        ctx.save();
+        shadow('rgba(0,0,0,.3)',8);
+        rr(0, 22, 38, 48, 4, C.white);
+        noShadow();
+        for(let i=0;i<5;i++){
+          ctx.fillStyle=i===4?C.yellow:'#00000022';
+          rr(-2, 4+i*8, 26-i%2*4, 2, 1, ctx.fillStyle);
+        }
+        ctx.restore();
+      } else if(accessory==='coffee'){
+        // mug
+        rr(0, 16, 22, 20, 4, C.white);
+        // steam
+        ctx.strokeStyle=C.white; ctx.globalAlpha=.3; ctx.lineWidth=2;
+        ctx.lineCap='round';
+        for(let i=-1;i<=1;i++){
+          ctx.beginPath();
+          ctx.moveTo(i*5,  3); ctx.bezierCurveTo(i*5-3,-1,i*5+3,-5,i*5,-9);
+          ctx.stroke();
+        }
+        ctx.globalAlpha=1;
+        // handle
+        ctx.beginPath(); ctx.arc(14,16,6,-.9,.9); ctx.strokeStyle=C.white; ctx.lineWidth=3; ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    // ── main draw
+    let t = 0;
+    // blink timers 0-1
+    let blinkA=0,blinkB=0,blinkC=0;
+
+    function frame(){
+      t += 0.016;
+      ctx.clearRect(0,0,W,H);
+
+      // ── particles
+      particles.forEach(p=>{
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>W)p.vx*=-1;
+        if(p.y<0||p.y>H)p.vy*=-1;
+        const a=.3+.3*sin(t,1,p.phase);
+        ctx.save();
+        shadow(p.color,10);
+        circ(p.x,p.y,p.r,p.color+'cc');
+        noShadow();
+        ctx.restore();
+      });
+
+      // ── PLATFORM LEFT (blue) — bot A on it
+      const platLY = 6*sin(t,.6,0);
+      ctx.save(); ctx.translate(0, platLY);
+      shadow('#1a6fff', 30);
+      isoPlatform(165, 260, 115, 55, 28, '#1a6fff', '#0d47a1', '#1565c0');
+      noShadow();
+      ctx.restore();
+
+      // ── PLATFORM RIGHT (cyan/teal) — bot C on it
+      const platRY = 6*sin(t,.5,1.8);
+      ctx.save(); ctx.translate(0, platRY);
+      shadow('#00c4a7',30);
+      isoPlatform(435, 255, 105, 48, 26, '#00b894', '#007a63', '#00cba3');
+      noShadow();
+      ctx.restore();
+
+      // ── PLATFORM CENTER (pink) — bot B on it
+      const platCY = 5*sin(t,.7,0.9);
+      ctx.save(); ctx.translate(0, platCY);
+      shadow('#ff3cac',35);
+      isoPlatform(300, 300, 130, 62, 30, '#e91e8c', '#a0105e', '#c2166e');
+      noShadow();
+      ctx.restore();
+
+      // ── BOT A — blue platform, typing, square eyes
+      blinkA = (blinkA+0.008)%1;
+      const bobA = -8*sin(t,.7,0.3);
+      const armA = 0.25*sin(t,4,0); // typing arms
+      drawBot(165, 210+platLY, bobA, C.yellow, 'square', armA, 0.15*sin(t,1.2,0), 'laptop', 'A', blinkA);
+
+      // ── BOT C — teal platform, waving, visor eyes
+      blinkC = (blinkC+0.007)%1;
+      const bobC = -9*sin(t,.65,1.1);
+      const waveAngle = -.5 - .4*sin(t,2.5,0); // waving arm up
+      ctx.save();
+      // draw right arm waving separately (special override)
+      ctx.translate(435, 205+platRY+bobC);
+      ctx.save(); ctx.translate(30,-14); ctx.rotate(waveAngle);
+      shadow(C.cyan,10); rr(10,0,18,10,5,C.cyan); noShadow();
+      // hand
+      circ(20,-3,6,C.white);
+      ctx.restore();
+      ctx.restore();
+      // draw bot without right arm extending
+      drawBot(435, 205+platRY, bobC, C.cyan, 'visor', 0.1*sin(t,1,2), 0.2*sin(t,1.5,1), 'coffee', 'C', blinkC);
+
+      // ── BOT B — center, holding paper, round eyes, bigger
+      blinkB = (blinkB+0.009)%1;
+      const bobB = -10*sin(t,.8,0.7);
+      ctx.save();
+      ctx.translate(300, 235+platCY+bobB);
+      ctx.scale(1.12,1.12); ctx.translate(-300,-(235+platCY+bobB));
+      drawBot(300, 235+platCY, bobB, C.pink, 'round', 0.18*sin(t,1.1,.5), 0.25*sin(t,.9,0), 'paper', 'B', blinkB);
+      ctx.restore();
+
+      // ── FLOATING MINI BOT (top right)
+      const floatY = -12*sin(t,.5,.3);
+      const floatRot = .06*sin(t,.4,0);
+      ctx.save();
+      ctx.translate(510,100+floatY);
+      ctx.rotate(floatRot);
+      ctx.scale(0.62,0.62);
+      // mini bot
+      shadow(C.pink,20);
+      rr(0,-10,36,28,8,C.pink);
+      noShadow();
+      rr(0,-30,30,22,7,C.white);
+      const mb=blinkB<.92?1:.15;
+      ctx.save();ctx.scale(1,mb);
+      circ(-7,-30/mb,4.5,C.dark);circ(7,-30/mb,4.5,C.dark);
+      ctx.restore();
+      // antenna
+      ctx.strokeStyle=C.white; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.moveTo(0,-41); ctx.lineTo(0,-54); ctx.stroke();
+      shadow(C.yellow,12); circ(0,-57,4,C.yellow); noShadow();
+      ctx.restore();
+
+      // ── SPARKS / stars
+      star(85,  110, 10+3*sin(t,1.1), C.yellow, t*1.2);
+      star(500, 170,  8+2*sin(t,.9,1), C.cyan,   -t*1.5);
+      star(270, 185,  7+2*sin(t,1.3,2), C.pink,   t*0.9);
+      star(390, 120,  5+1.5*sin(t,1.6,3), C.yellow, -t*1.1);
+
+      // ── connection line (animated dash)
+      ctx.save();
+      ctx.setLineDash([6,8]);
+      ctx.lineDashOffset = -t*18;
+      ctx.strokeStyle=C.yellow+'55'; ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.moveTo(165,260+platLY); ctx.bezierCurveTo(230,340,360,340,435,260+platRY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+
+      // ── floating badge "MrBot"
+      const bx=30, by=55+5*sin(t,.6,.5);
+      ctx.save();
+      shadow(C.yellow,20);
+      ctx.beginPath(); ctx.roundRect(bx,by,78,26,13);
+      ctx.fillStyle=C.yellow; ctx.fill(); noShadow();
+      ctx.fillStyle=C.dark; ctx.font='bold 11px Rubik,sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('✦ MrBot', bx+39, by+13);
+      ctx.restore();
+
+      // chat bubbles
+      if(sin(t,.3)>0.2){
+        const bubbleAlpha = Math.max(0,(sin(t,.3)-.2)/.8);
+        ctx.globalAlpha=bubbleAlpha;
+        bubble(185, 135, 70, 26, 8, C.yellow, 'Hello! 👋');
+        ctx.globalAlpha=1;
+      }
+      if(sin(t,.25,2.1)>0.3){
+        const ba=Math.max(0,(sin(t,.25,2.1)-.3)/.7);
+        ctx.globalAlpha=ba;
+        bubble(340, 120, 90, 26, 8, C.cyan, 'Let\'s build! 🚀','#0a0a0a');
+        ctx.globalAlpha=1;
+      }
+
+      requestAnimationFrame(frame);
+    }
+    frame();
+  })();
+  </script>
+
+  <!-- Bottom text -->
+  <div class="title-wrap">
+    <span class="big-text bottom">
+      <span class="accent-word">BOT</span><span class="accent2-word">.fun</span>
+    </span>
+  </div>
+
+  <p class="tagline">Your smartest digital companion</p>
+
+  <div class="cta-row">
+    <a href="https://t.me/MrBot_Fun" target="_blank" class="btn btn-primary">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><path d="M11.944 0A12 12 0 1 0 24 12 12 12 0 0 0 11.944 0Zm5.865 8.073-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L6.972 14.7l-2.972-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.834.95Z"/></svg>
+      رایگان شروع کن
+    </a>
+  </div>
+</section>
+
+</body>
+</html>
