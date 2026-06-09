@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دنتوآی — خلاصه‌ساز هوشمند دندانپزشکی</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#04080f;--bg2:#060c16;--surface:#0a1220;--card:#0d1829;
+  --blue:#64b5f6;--blue2:#90caf9;--blue3:#1565c0;
+  --teal:#4dd0e1;--red:#ff5252;--gold:#ffd54f;
+  --border:rgba(100,181,246,0.13);--border2:rgba(100,181,246,0.26);
+  --text:#e3f2fd;--dim:#90a4ae;--muted:#546e7a;--muted2:#1e3a4f;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;direction:rtl;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(100,181,246,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(100,181,246,0.018) 1px,transparent 1px);background-size:42px 42px;pointer-events:none;z-index:0}
+.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.orb1{width:700px;height:700px;background:radial-gradient(circle,rgba(21,101,192,0.07) 0%,transparent 70%);top:-300px;right:-200px}
+.orb2{width:500px;height:500px;background:radial-gradient(circle,rgba(77,208,225,0.04) 0%,transparent 70%);bottom:-200px;left:-150px}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:13px 36px;background:rgba(4,8,15,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.1rem;font-weight:900;color:var(--blue)}
+.logo-box{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#0d2137,var(--blue3));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 16px rgba(21,101,192,0.4)}
+.nav-badge{font-size:0.72rem;font-weight:700;padding:4px 13px;border-radius:4px;background:rgba(100,181,246,0.08);border:1px solid var(--border2);color:var(--blue2)}
+main{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:36px 28px 80px}
+.page-header{text-align:center;margin-bottom:44px}
+.page-header h1{font-size:clamp(1.8rem,4.5vw,3rem);font-weight:900;letter-spacing:-1.5px;line-height:1.1;margin-bottom:10px}
+.page-header h1 span{color:var(--blue);text-shadow:0 0 40px rgba(100,181,246,0.5)}
+.page-header p{color:var(--dim);font-size:0.9rem;line-height:1.7}
+.steps{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:40px;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:7px;padding:7px 16px;background:var(--surface);border:1px solid var(--border);font-size:0.76rem;color:var(--muted);transition:all .3s}
+.step:first-child{border-radius:7px 0 0 7px}.step:last-child{border-radius:0 7px 7px 0}
+.step.active{background:rgba(100,181,246,0.08);border-color:var(--border2);color:var(--blue2);font-weight:700}
+.step.done{color:var(--teal);border-color:rgba(77,208,225,0.25)}
+.step .sn{width:18px;height:18px;border-radius:50%;background:var(--muted2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:900;flex-shrink:0}
+.step.active .sn{background:var(--blue);box-shadow:0 0 8px rgba(100,181,246,0.4)}
+.step.done .sn{background:var(--teal);color:#000}
+.sarrow{color:var(--muted2);font-size:0.75rem;padding:0 3px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;background:var(--bg2)}
+.card-icon{font-size:1rem}.card-title{font-size:0.85rem;font-weight:700;color:var(--text)}
+.card-sub{font-size:0.7rem;color:var(--dim);margin-top:1px}
+.card-body{padding:18px;flex:1;display:flex;flex-direction:column;gap:13px}
+.subj-pills{display:flex;gap:8px;flex-wrap:wrap}
+.subj-pill{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;background:var(--card);border:1.5px solid var(--border);cursor:pointer;font-size:0.8rem;font-weight:600;color:var(--dim);transition:all .22s;font-family:'Vazirmatn',sans-serif}
+.subj-pill:hover{border-color:var(--border2);color:var(--text)}
+.subj-pill.active{background:rgba(100,181,246,0.08);border-color:var(--blue);color:var(--blue2);box-shadow:0 0 14px rgba(100,181,246,0.1)}
+.input-tabs{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:var(--card)}
+.itab{flex:1;padding:9px;text-align:center;font-size:0.78rem;font-weight:600;cursor:pointer;color:var(--dim);transition:all .2s;font-family:'Vazirmatn',sans-serif;border:none;background:transparent}
+.itab.active{background:rgba(100,181,246,0.1);color:var(--blue2)}
+.pdf-drop{border:2px dashed rgba(100,181,246,0.2);border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .25s;position:relative;background:var(--card)}
+.pdf-drop:hover,.pdf-drop.drag{border-color:var(--blue);background:rgba(100,181,246,0.04)}
+.pdf-drop-icon{font-size:2rem;margin-bottom:8px}
+.pdf-drop p{font-size:0.8rem;color:var(--dim);line-height:1.6}
+.pdf-drop strong{color:var(--blue2)}
+.pdf-file-info{display:none;align-items:center;gap:10px;background:rgba(100,181,246,0.06);border:1px solid var(--border2);border-radius:8px;padding:10px 14px}
+.pdf-file-info.show{display:flex}
+.pdf-file-name{font-size:0.8rem;font-weight:600;color:var(--blue2);flex:1}
+.pdf-file-size{font-size:0.7rem;color:var(--muted)}
+.pdf-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem;padding:0 4px}
+textarea{width:100%;background:var(--card);border:1px solid var(--border2);border-radius:8px;padding:11px 14px;color:var(--text);font-size:0.83rem;font-family:'Vazirmatn',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;direction:rtl;resize:vertical;min-height:140px;line-height:1.8}
+textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(100,181,246,0.1)}
+textarea::placeholder{color:var(--muted2)}
+.char-count{font-size:0.68rem;color:var(--muted2);text-align:left;direction:ltr;margin-top:3px}
+.char-count.warn{color:var(--gold)}
+.out-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.out-box{border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .22s;display:flex;align-items:flex-start;gap:10px;background:var(--card)}
+.out-box:hover{border-color:var(--border2)}
+.out-box.checked{border-color:var(--blue);background:rgba(100,181,246,0.05);box-shadow:0 0 12px rgba(100,181,246,0.08)}
+.out-check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .2s;font-size:0.65rem;color:transparent}
+.out-box.checked .out-check{background:var(--blue);border-color:var(--blue);color:#000;font-weight:900}
+.out-label{flex:1}.out-label-title{font-size:0.8rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.out-label-desc{font-size:0.68rem;color:var(--muted);line-height:1.5}
+.out-emoji{font-size:1.1rem;margin-top:1px}
+.note-area{border:1px solid var(--border2);border-radius:8px;overflow:hidden}
+.note-area textarea{min-height:80px;border:none;border-radius:0;box-shadow:none}
+.note-area textarea:focus{border:none;box-shadow:none}
+.note-head{padding:7px 12px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:0.7rem;color:var(--dim);font-weight:600}
+.gen-btn{width:100%;padding:15px;background:linear-gradient(135deg,#1565c0,#1976d2);color:#fff;font-weight:900;font-size:1rem;border:none;border-radius:10px;cursor:pointer;font-family:'Vazirmatn',sans-serif;transition:all .25s;box-shadow:0 4px 24px rgba(100,181,246,0.28);display:flex;align-items:center;justify-content:center;gap:10px;grid-column:1/-1;letter-spacing:-.3px}
+.gen-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 36px rgba(100,181,246,0.4);filter:brightness(1.1)}
+.gen-btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.out-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;grid-column:1/-1;display:none}
+.out-panel.show{display:block}
+.out-panel-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
+.out-panel-info{display:flex;align-items:center;gap:9px}
+.out-panel-title{font-size:0.86rem;font-weight:700}
+.out-panel-sub{font-size:0.7rem;color:var(--dim)}
+.rtabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg2);overflow-x:auto}
+.rtab{padding:11px 18px;font-size:0.78rem;font-weight:600;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;font-family:'Vazirmatn',sans-serif;flex-shrink:0}
+.rtab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.rtab:hover:not(.active){color:var(--text)}
+.rtab-content{display:none;padding:24px}
+.rtab-content.active{display:block}
+.loading{display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:200px;padding:40px}
+.loading.show{display:flex}
+.dots{display:flex;gap:6px}
+.dots span{width:8px;height:8px;border-radius:50%;background:var(--blue);animation:bounce 1.2s ease-in-out infinite}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-7px);opacity:1}}
+.loading p{font-size:0.82rem;color:var(--dim)}
+.err{background:rgba(255,82,82,0.07);border:1px solid rgba(255,82,82,0.2);border-radius:10px;padding:14px 16px;color:#ef9a9a;font-size:0.82rem;line-height:1.6;display:none;margin:20px}
+.err.show{display:block}
+.r-section{margin-bottom:20px}.r-section:last-child{margin-bottom:0}
+.r-section-title{font-size:0.8rem;font-weight:700;color:var(--blue2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.tree{display:flex;flex-direction:column;gap:6px}
+.tree-root{font-size:0.92rem;font-weight:800;color:var(--text);padding:10px 14px;background:rgba(100,181,246,0.08);border:1px solid var(--border2);border-radius:8px;margin-bottom:6px}
+.tree-branch{padding-right:16px;border-right:2px solid rgba(100,181,246,0.2);margin-right:8px;display:flex;flex-direction:column;gap:4px}
+.tree-item{font-size:0.82rem;color:var(--dim);padding:5px 10px;border-radius:6px;line-height:1.6}
+.tree-item::before{content:'◈ ';color:var(--blue);font-size:0.65rem}
+.tree-sub{padding-right:20px;border-right:1px solid rgba(100,181,246,0.1);margin-right:12px;margin-top:3px;display:flex;flex-direction:column;gap:3px}
+.tree-sub-item{font-size:0.78rem;color:var(--muted);padding:3px 8px;line-height:1.5}
+.tree-sub-item::before{content:'– ';color:var(--teal)}
+.exam-list{display:flex;flex-direction:column;gap:8px}
+.exam-item{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:11px 14px;font-size:0.82rem;color:var(--dim);line-height:1.7;display:flex;gap:8px}
+.exam-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:7px}
+.qa-list{display:flex;flex-direction:column;gap:12px}
+.qa-item{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.qa-q{background:rgba(100,181,246,0.06);padding:11px 14px;font-size:0.82rem;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qa-toggle{color:var(--blue);font-size:0.7rem;transition:transform .2s;flex-shrink:0}
+.qa-item.open .qa-toggle{transform:rotate(180deg)}
+.qa-a{display:none;padding:11px 14px;font-size:0.82rem;color:var(--teal);line-height:1.7;border-top:1px solid var(--border);background:rgba(77,208,225,0.03)}
+.qa-item.open .qa-a{display:block}
+.compare-table{width:100%;border-collapse:collapse;font-size:0.8rem}
+.compare-table th{background:rgba(100,181,246,0.1);color:var(--blue2);font-weight:700;padding:9px 12px;text-align:right;border:1px solid var(--border)}
+.compare-table td{padding:8px 12px;border:1px solid var(--border);color:var(--dim);line-height:1.6;vertical-align:top}
+.compare-table tr:nth-child(even) td{background:rgba(100,181,246,0.02)}
+.gloss-list{display:flex;flex-direction:column;gap:7px}
+.gloss-item{display:flex;gap:10px;padding:9px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;align-items:flex-start}
+.gloss-term{color:var(--blue2);font-weight:700;font-size:0.8rem;min-width:110px;flex-shrink:0}
+.gloss-def{color:var(--dim);font-size:0.79rem;line-height:1.6}
+.btn-sm{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:7px;font-size:0.74rem;font-weight:700;cursor:pointer;font-family:'Vazirmatn',sans-serif;transition:all .2s;border:1px solid var(--border2);background:rgba(100,181,246,0.07);color:var(--blue2)}
+.btn-sm:hover{background:rgba(100,181,246,0.14)}
+.btn-sm.copied{background:rgba(77,208,225,0.1);color:var(--teal);border-color:rgba(77,208,225,0.3)}
+label.lbl{font-size:0.76rem;font-weight:600;color:var(--dim);display:block;margin-bottom:5px}
+.field-note{font-size:0.68rem;color:var(--muted2);margin-top:3px}
+.hidden{display:none!important}
+@media(max-width:720px){
+  main{padding:20px 14px 60px}.grid{grid-template-columns:1fr}.gen-btn{grid-column:1}nav{padding:11px 16px}.out-grid{grid-template-columns:1fr}
+}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:rgba(100,181,246,0.2);border-radius:3px}
+
+/* ===== LOCK BOX ===== */
+#app-wrapper{position:relative}
+#lock-box{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:20px;
+  padding:52px 40px 44px;
+  text-align:center;
+  max-width:420px;
+  margin:60px auto 0;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  transition:border-color .3s,box-shadow .3s;
+  box-shadow:0 0 40px rgba(100,181,246,0.06);
+}
+#lock-box::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(100,181,246,0.06) 0%,transparent 70%);
+  pointer-events:none;
+}
+/* hover removed */
+.lock-icon-wrap{
+  width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg,#0d1e3a,#1565c0);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 22px;
+  font-size:2.2rem;
+  box-shadow:0 0 24px rgba(100,181,246,0.22);
+  transition:box-shadow .3s;
+  position:relative;z-index:1;
+}
+.lock-box-title{font-size:1.45rem;font-weight:900;color:var(--text);margin-bottom:8px;letter-spacing:-0.5px;position:relative;z-index:1}
+.lock-box-title span{color:var(--blue)}
+.lock-box-desc{font-size:0.82rem;color:var(--dim);line-height:1.7;margin-bottom:28px;position:relative;z-index:1}
+.lock-tap-hint{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 22px;border-radius:9px;
+  background:rgba(100,181,246,0.09);border:1px solid var(--border2);
+  color:var(--blue2);font-size:0.8rem;font-weight:700;
+  position:relative;z-index:1;
+  transition:background .2s;
+}
+/* hover removed */
+
+/* password modal */
+#pwd-modal{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(4,8,15,0.85);backdrop-filter:blur(12px);
+  align-items:center;justify-content:center;
+}
+#pwd-modal.show{display:flex}
+#pwd-card{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:18px;padding:40px 36px;width:360px;max-width:90vw;
+  text-align:center;position:relative;
+  box-shadow:0 20px 80px rgba(0,0,0,0.6),0 0 40px rgba(100,181,246,0.08);
+  animation:popIn .25s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+.pwd-lock-icon{font-size:2.4rem;margin-bottom:16px;transition:all .4s}
+#pwd-card h2{font-size:1.1rem;font-weight:900;margin-bottom:6px;color:var(--text)}
+#pwd-card p{font-size:0.78rem;color:var(--dim);margin-bottom:22px;line-height:1.6}
+#pwd-input{
+  width:100%;background:var(--card);border:1.5px solid var(--border2);
+  border-radius:9px;padding:12px 16px;color:var(--text);
+  font-size:1rem;font-family:'Vazirmatn',sans-serif;outline:none;
+  text-align:center;letter-spacing:4px;direction:ltr;
+  transition:border-color .2s,box-shadow .2s;
+  margin-bottom:6px;
+}
+#pwd-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(100,181,246,0.12)}
+#pwd-input.wrong{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(255,82,82,0.15)!important;animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+#pwd-err{font-size:0.72rem;color:#ef9a9a;height:18px;margin-bottom:14px;transition:opacity .2s}
+#pwd-submit{
+  width:100%;padding:13px;background:linear-gradient(135deg,#1565c0,#1976d2);
+  color:#fff;font-weight:900;font-size:0.92rem;border:none;border-radius:9px;
+  cursor:pointer;font-family:'Vazirmatn',sans-serif;
+  transition:all .22s;box-shadow:0 4px 20px rgba(100,181,246,0.25);
+}
+#pwd-submit:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.pwd-cancel{margin-top:12px;font-size:0.74rem;color:var(--muted);cursor:pointer;display:block}
+.pwd-cancel:hover{color:var(--dim)}
+
+/* unlocked state for lock-box */
+#lock-box.unlocked{pointer-events:none;opacity:0;height:0;padding:0;border:none;margin:0;overflow:hidden;transition:all .4s}
+
+/* main content hidden until unlocked */
+#main-content{display:none}
+#main-content.visible{display:block}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div><div class="orb orb2"></div>
+
+<!-- PASSWORD MODAL -->
+<div id="pwd-modal">
+  <div id="pwd-card">
+    <div class="pwd-lock-icon" id="pwd-lock-icon">🔒</div>
+    <h2>ورود به خلاصه‌ساز</h2>
+    <p>رمز عبور را وارد کنید تا به ابزار دسترسی پیدا کنید</p>
+    <input type="password" id="pwd-input" placeholder="••••••" maxlength="20" onkeydown="if(event.key==='Enter')checkPwd()" oninput="clearPwdErr()">
+    <div id="pwd-err"></div>
+    <button id="pwd-submit" onclick="checkPwd()">🔓 ورود</button>
+    <span class="pwd-cancel" onclick="closePwdModal()">انصراف</span>
+  </div>
+</div>
+
+<nav>
+  <div class="logo">
+    <div class="logo-box">🦷</div>
+    <span style="color:var(--dim);font-weight:300">دنتو</span><span style="color:var(--teal);font-weight:900">آی</span>
+  </div>
+  <div class="nav-badge">✦ خلاصه‌ساز هوشمند</div>
+</nav>
+
+<!-- LOCK BOX -->
+<div id="lock-box" onclick="openPwdModal()">
+  <div class="lock-icon-wrap">🔒</div>
+  <div class="lock-box-title">خلاصه‌ساز <span>هوشمند</span></div>
+  <div class="lock-box-desc">ابزار هوش مصنوعی برای خلاصه‌سازی جزوات دندانپزشکی<br>برای دسترسی، رمز عبور خود را وارد کنید</div>
+  <div class="lock-tap-hint">🔐 کلیک کنید برای ورود</div>
+</div>
+
+<!-- MAIN CONTENT (hidden until unlocked) -->
+<div id="main-content">
+
+<style>
+/* Dashboard boxes */
+.dash-wrap{max-width:860px;margin:0 auto;padding:40px 28px 80px;position:relative;z-index:1}
+.dash-header{text-align:center;margin-bottom:36px}
+.dash-header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;letter-spacing:-1px;margin-bottom:8px}
+.dash-header h1 span{color:var(--blue);text-shadow:0 0 40px rgba(100,181,246,0.5)}
+.dash-header p{color:var(--dim);font-size:0.85rem}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.dash-box{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;cursor:pointer;transition:border-color .25s,box-shadow .25s,transform .2s;
+  display:flex;flex-direction:column;aspect-ratio:1/1;
+  position:relative;
+}
+.dash-box:hover{border-color:var(--border2);box-shadow:0 8px 40px rgba(100,181,246,0.12);transform:translateY(-3px)}
+.dash-box.disabled-box{cursor:default;opacity:.7}
+.dash-box.disabled-box:hover{transform:none;box-shadow:none;border-color:var(--border)}
+.dash-box-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 20px;text-align:center;gap:14px}
+.dash-box-icon{font-size:2.8rem;line-height:1}
+.dash-box-title{font-size:1rem;font-weight:900;color:var(--text);letter-spacing:-.3px}
+.dash-box-sub{font-size:0.74rem;color:var(--dim);line-height:1.6}
+.dash-box-badge{
+  position:absolute;top:12px;left:12px;
+  font-size:0.65rem;font-weight:700;padding:3px 9px;border-radius:4px;
+  background:rgba(100,181,246,0.1);border:1px solid var(--border2);color:var(--blue2)
+}
+.dash-box-badge.soon{background:rgba(255,213,79,0.1);border-color:rgba(255,213,79,0.3);color:var(--gold)}
+.dash-box-arrow{
+  font-size:1.3rem;color:var(--blue);opacity:0;transition:opacity .2s,transform .2s;
+  transform:translateX(4px)
+}
+.dash-box:hover .dash-box-arrow{opacity:1;transform:translateX(0)}
+/* Summarizer view (card 3) */
+#summarizer-view{display:none}
+#summarizer-view.show{display:block}
+.back-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;background:rgba(100,181,246,0.07);border:1px solid var(--border2);color:var(--blue2);font-size:0.8rem;font-weight:700;cursor:pointer;margin-bottom:24px;transition:background .2s;font-family:'Vazirmatn',sans-serif}
+.back-btn:hover{background:rgba(100,181,246,0.14)}
+@media(max-width:600px){.dash-grid{grid-template-columns:1fr}.dash-wrap{padding:24px 14px 60px}}
+</style>
+
+<!-- DASHBOARD -->
+<div id="dashboard-view">
+<div class="dash-wrap">
+  <div class="dash-header">
+    <h1>دنتو<span>آی</span> — داشبورد</h1>
+    <p>یکی از بخش‌ها را انتخاب کنید</p>
+  </div>
+  <div class="dash-grid">
+
+    <!-- BOX 1: بیوشیمی ۱ -->
+    <div class="dash-box disabled-box">
+      <div class="dash-box-badge soon">به‌زودی</div>
+      <div class="dash-box-inner">
+        <div class="dash-box-icon">⚗️</div>
+        <div class="dash-box-title">خلاصه آماده بیوشیمی ۱</div>
+        <div class="dash-box-sub">خلاصه کامل و آماده درس بیوشیمی ۱<br>به‌زودی اضافه می‌شود</div>
+        <div class="dash-box-arrow">→</div>
+      </div>
+    </div>
+
+    <!-- BOX 2: فیزیولوژی ۱ -->
+    <div class="dash-box disabled-box">
+      <div class="dash-box-badge soon">به‌زودی</div>
+      <div class="dash-box-inner">
+        <div class="dash-box-icon">🫀</div>
+        <div class="dash-box-title">خلاصه آماده فیزیولوژی ۱</div>
+        <div class="dash-box-sub">خلاصه کامل و آماده درس فیزیولوژی ۱<br>به‌زودی اضافه می‌شود</div>
+        <div class="dash-box-arrow">→</div>
+      </div>
+    </div>
+
+    <!-- BOX 3: خلاصه‌ساز هوشمند -->
+    <div class="dash-box" onclick="openSummarizer()" style="grid-column:1/-1;aspect-ratio:auto;min-height:160px">
+      <div class="dash-box-badge">هوش مصنوعی</div>
+      <div class="dash-box-inner" style="flex-direction:row;gap:22px;text-align:right;justify-content:flex-start;padding:28px 32px">
+        <div style="font-size:3.2rem;flex-shrink:0">🧠</div>
+        <div>
+          <div class="dash-box-title" style="font-size:1.15rem;margin-bottom:6px">خلاصه‌ساز هوشمند</div>
+          <div class="dash-box-sub" style="font-size:0.8rem">PDF یا متن جزوه‌ات رو بده — با هوش مصنوعی در ثانیه خلاصه بگیر</div>
+        </div>
+        <div class="dash-box-arrow" style="margin-right:auto;font-size:1.6rem">→</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div><!-- end dashboard-view -->
+
+<!-- SUMMARIZER VIEW -->
+<div id="summarizer-view">
+<main>
+  <button class="back-btn" onclick="closeSummarizer()">← بازگشت به داشبورد</button>
+
+  <div class="page-header">
+    <h1>جزوه دندانپزشکی رو با <span>هوش مصنوعی</span> خلاصه کن</h1>
+    <p>PDF یا متن جزوه رو بده — نوع خلاصه رو انتخاب کن — در ثانیه تحویل بگیر</p>
+  </div>
+
+  <div class="steps">
+    <div class="step active" id="sp1"><span class="sn">۱</span> منبع + درس</div>
+    <div class="sarrow">←</div>
+    <div class="step" id="sp2"><span class="sn">۲</span> نوع خلاصه</div>
+    <div class="sarrow">←</div>
+    <div class="step" id="sp3"><span class="sn">۳</span> نتیجه</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- CARD 1: INPUT -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-icon">📂</span>
+        <div>
+          <div class="card-title">منبع درس</div>
+          <div class="card-sub">PDF جزوه یا متن مستقیم وارد کن</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div>
+          <label class="lbl">درس</label>
+          <div class="subj-pills" id="subj-pills">
+            <div class="subj-pill active" data-s="biochemistry" onclick="pickSubj(this)">⚗️ بیوشیمی</div>
+            <div class="subj-pill" data-s="anatomy" onclick="pickSubj(this)">🦴 آناتومی</div>
+            <div class="subj-pill" data-s="physiology" onclick="pickSubj(this)">🫀 فیزیولوژی</div>
+          </div>
+        </div>
+
+        <div>
+          <label class="lbl">نوع ورودی</label>
+          <div class="input-tabs">
+            <button class="itab active" onclick="switchTab('pdf',this)">📄 آپلود PDF</button>
+            <button class="itab" onclick="switchTab('text',this)">✏️ تایپ متن</button>
+          </div>
+        </div>
+
+        <div id="tab-pdf">
+          <div class="pdf-drop" id="pdf-drop" onclick="document.getElementById('pdf-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+            <input type="file" id="pdf-input" accept=".pdf" style="display:none" onchange="handleFile(this.files[0])">
+            <div class="pdf-drop-icon">📄</div>
+            <p><strong>کلیک کن</strong> یا فایل رو اینجا بکش<br><span style="font-size:0.72rem;color:var(--muted)">فقط PDF — حداکثر ۱۰ مگ</span></p>
+          </div>
+          <div class="pdf-file-info" id="pdf-file-info">
+            <span style="font-size:1.3rem">📄</span>
+            <span class="pdf-file-name" id="pdf-file-name">—</span>
+            <span class="pdf-file-size" id="pdf-file-size"></span>
+            <button class="pdf-remove" onclick="removePdf()">✕</button>
+          </div>
+          <div class="field-note" style="margin-top:6px">متن PDF به‌صورت خودکار استخراج میشه</div>
+        </div>
+
+        <div id="tab-text" class="hidden">
+          <textarea id="text-input" placeholder="متن جزوه را اینجا پیست کنید..." oninput="countChars(this)"></textarea>
+          <div class="char-count" id="char-count">۰ کاراکتر</div>
+        </div>
+
+        <div>
+          <label class="lbl">نمونه سوال امتحانی <span style="color:var(--muted);font-weight:400">(اختیاری)</span></label>
+          <div class="note-area">
+            <div class="note-head">📝 سوالات قبلی — AI بر اساسشون تمرکز می‌کنه</div>
+            <textarea id="exam-input" style="min-height:80px" placeholder="مثال: کدام آنزیم مسئول هضم پروتئین‌هاست؟&#10;عصب‌دهی دندان‌های جلو توسط کدام عصب است؟"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CARD 2: OUTPUT OPTIONS -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-icon">✦</span>
+        <div>
+          <div class="card-title">نوع خلاصه</div>
+          <div class="card-sub">چند تا می‌تونی انتخاب کنی</div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <div class="out-grid">
+          <div class="out-box checked" data-key="tree" onclick="toggleOut(this)">
+            <div class="out-check">✓</div>
+            <div class="out-emoji">🌳</div>
+            <div class="out-label">
+              <div class="out-label-title">خلاصه درختی</div>
+              <div class="out-label-desc">ساختار سلسله‌مراتبی مطالب</div>
+            </div>
+          </div>
+          <div class="out-box checked" data-key="exam" onclick="toggleOut(this)">
+            <div class="out-check">✓</div>
+            <div class="out-emoji">🎯</div>
+            <div class="out-label">
+              <div class="out-label-title">ویژه امتحان</div>
+              <div class="out-label-desc">نکات تست‌پذیر و پُرتکرار</div>
+            </div>
+          </div>
+          <div class="out-box" data-key="qa" onclick="toggleOut(this)">
+            <div class="out-check">✓</div>
+            <div class="out-emoji">❓</div>
+            <div class="out-label">
+              <div class="out-label-title">نمونه سوال + جواب</div>
+              <div class="out-label-desc">سوالات تمرینی با پاسخ</div>
+            </div>
+          </div>
+          <div class="out-box" data-key="table" onclick="toggleOut(this)">
+            <div class="out-check">✓</div>
+            <div class="out-emoji">📊</div>
+            <div class="out-label">
+              <div class="out-label-title">مقایسه جدولی</div>
+              <div class="out-label-desc">مقایسه مفاهیم در جدول</div>
+            </div>
+          </div>
+          <div class="out-box" data-key="glossary" onclick="toggleOut(this)" style="grid-column:1/-1">
+            <div class="out-check">✓</div>
+            <div class="out-emoji">📖</div>
+            <div class="out-label">
+              <div class="out-label-title">واژگان کلیدی + تعریف</div>
+              <div class="out-label-desc">اصطلاحات مهم با توضیح کوتاه</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border);padding-top:13px;display:flex;flex-direction:column;gap:10px">
+          <div>
+            <label class="lbl">زبان خروجی</label>
+            <div class="subj-pills" id="lang-pills">
+              <div class="subj-pill active" data-l="fa" onclick="pickLang(this)">🇮🇷 فارسی</div>
+              <div class="subj-pill" data-l="mixed" onclick="pickLang(this)">🔀 دوزبانه</div>
+              <div class="subj-pill" data-l="en" onclick="pickLang(this)">🇬🇧 انگلیسی</div>
+            </div>
+          </div>
+          <div>
+            <label class="lbl">سطح جزئیات</label>
+            <div class="subj-pills" id="detail-pills">
+              <div class="subj-pill" data-d="brief" onclick="pickDetail(this)">کوتاه</div>
+              <div class="subj-pill active" data-d="standard" onclick="pickDetail(this)">استاندارد</div>
+              <div class="subj-pill" data-d="detailed" onclick="pickDetail(this)">جامع</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- GEN BTN -->
+    <button class="gen-btn" id="gen-btn" onclick="generate()">
+      <span>✦</span> ساخت خلاصه هوشمند
+    </button>
+
+    <!-- OUTPUT PANEL -->
+    <div class="out-panel" id="out-panel">
+      <div class="out-panel-head">
+        <div class="out-panel-info">
+          <span style="font-size:1.4rem">🧠</span>
+          <div>
+            <div class="out-panel-title" id="out-title">خلاصه هوشمند</div>
+            <div class="out-panel-sub" id="out-sub">آماده می‌شود...</div>
+          </div>
+        </div>
+        <button class="btn-sm" id="copy-btn" onclick="copyAll()">📋 کپی همه</button>
+      </div>
+      <div class="loading" id="loading">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <p id="loading-msg">در حال پردازش...</p>
+      </div>
+      <div class="err" id="err-msg"></div>
+      <div id="result-wrap" style="display:none">
+        <div class="rtabs" id="rtabs"></div>
+        <div id="rtab-contents"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div><!-- end summarizer-view -->
+
+</div><!-- end main-content -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+if(typeof pdfjsLib!=='undefined'){
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+let state={subject:'biochemistry',inputMode:'pdf',pdfFile:null,lang:'fa',detail:'standard',outputs:new Set(['tree','exam'])};
+let isLoading=false,lastResultText='';
+
+const subjNames={
+  biochemistry:{fa:'بیوشیمی',en:'Biochemistry',icon:'⚗️'},
+  anatomy:{fa:'آناتومی',en:'Anatomy',icon:'🦴'},
+  physiology:{fa:'فیزیولوژی',en:'Physiology',icon:'🫀'},
+};
+const outMeta={
+  tree:{tab:'🌳 درختی',title:'خلاصه درختی'},
+  exam:{tab:'🎯 امتحان',title:'ویژه امتحان'},
+  qa:{tab:'❓ سوال‌ها',title:'نمونه سوال + جواب'},
+  table:{tab:'📊 جدول',title:'مقایسه جدولی'},
+  glossary:{tab:'📖 واژگان',title:'واژگان کلیدی'},
+};
+
+function pickSubj(el){document.querySelectorAll('#subj-pills .subj-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');state.subject=el.dataset.s;}
+function pickLang(el){document.querySelectorAll('#lang-pills .subj-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');state.lang=el.dataset.l;}
+function pickDetail(el){document.querySelectorAll('#detail-pills .subj-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');state.detail=el.dataset.d;}
+
+function switchTab(mode,btn){
+  state.inputMode=mode;
+  document.querySelectorAll('.itab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-pdf').classList.toggle('hidden',mode!=='pdf');
+  document.getElementById('tab-text').classList.toggle('hidden',mode!=='text');
+}
+
+function toggleOut(box){
+  box.classList.toggle('checked');
+  const k=box.dataset.key;
+  if(box.classList.contains('checked'))state.outputs.add(k);else state.outputs.delete(k);
+}
+
+function countChars(el){
+  const n=el.value.length;
+  const cc=document.getElementById('char-count');
+  cc.textContent=n.toLocaleString('fa-IR')+' کاراکتر';
+  cc.className='char-count'+(n>6000?' warn':'');
+}
+
+function dragOver(e){e.preventDefault();document.getElementById('pdf-drop').classList.add('drag');}
+function dragLeave(e){document.getElementById('pdf-drop').classList.remove('drag');}
+function dropFile(e){e.preventDefault();dragLeave(e);const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf')handleFile(f);}
+
+function handleFile(file){
+  if(!file)return;
+  state.pdfFile=file;
+  document.getElementById('pdf-drop').style.display='none';
+  document.getElementById('pdf-file-info').classList.add('show');
+  document.getElementById('pdf-file-name').textContent=file.name;
+  document.getElementById('pdf-file-size').textContent=(file.size/1024/1024).toFixed(2)+' MB';
+}
+function removePdf(){
+  state.pdfFile=null;
+  document.getElementById('pdf-drop').style.display='';
+  document.getElementById('pdf-file-info').classList.remove('show');
+  document.getElementById('pdf-input').value='';
+}
+
+async function extractPdfText(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=async e=>{
+      try{
+        const pdf=await pdfjsLib.getDocument({data:new Uint8Array(e.target.result)}).promise;
+        let text='';
+        for(let i=1;i<=Math.min(pdf.numPages,30);i++){
+          const page=await pdf.getPage(i);
+          const content=await page.getTextContent();
+          text+=content.items.map(s=>s.str).join(' ')+'\n';
+        }
+        resolve(text.trim());
+      }catch(err){reject(err);}
+    };
+    reader.onerror=reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+async function generate(){
+  if(isLoading)return;
+  let inputText='';
+  if(state.inputMode==='pdf'){
+    if(!state.pdfFile){flash('pdf-drop');return;}
+    document.getElementById('loading-msg').textContent='در حال استخراج متن PDF...';
+    showLoad(true);
+    try{inputText=await extractPdfText(state.pdfFile);}
+    catch(e){showLoad(false);showErr('خطا در خواندن PDF. لطفاً از متن مستقیم استفاده کنید.');return;}
+    if(!inputText||inputText.length<50){showLoad(false);showErr('متن قابل استخراجی پیدا نشد. شاید PDF اسکن‌شده باشه — متن را دستی وارد کنید.');return;}
+  }else{
+    inputText=document.getElementById('text-input').value.trim();
+    if(!inputText){flash('text-input');return;}
+  }
+  if(state.outputs.size===0){alert('حداقل یک نوع خلاصه انتخاب کنید');return;}
+
+  const examText=document.getElementById('exam-input').value.trim();
+  const subj=subjNames[state.subject];
+  const outKeys=[...state.outputs];
+  const langMap={fa:'فارسی',mixed:'فارسی با ترم‌های تخصصی انگلیسی در پرانتز',en:'English'};
+  const detailMap={brief:'مختصر',standard:'متوسط و کاربردی',detailed:'جامع و کامل'};
+
+  const outInstructions=outKeys.map(k=>{
+    if(k==='tree')return '"tree":{"root":"عنوان اصلی","branches":[{"title":"سرفصل","items":["زیرمجموعه ۱","زیرمجموعه ۲"]}]}';
+    if(k==='exam')return '"exam":["نکته تست‌پذیر ۱","نکته تست‌پذیر ۲","نکته تست‌پذیر ۳"]';
+    if(k==='qa')return '"qa":[{"q":"سوال","a":"پاسخ کوتاه"}]';
+    if(k==='table')return '"table":{"headers":["مفهوم","ویژگی ۱","ویژگی ۲"],"rows":[["مورد ۱","مقدار","مقدار"]]}';
+    if(k==='glossary')return '"glossary":[{"term":"اصطلاح","def":"تعریف کوتاه"}]';
+  }).join(',\n  ');
+
+  const system=`تو یک دستیار تخصصی علوم پایه دندانپزشکی هستی. خلاصه‌های ساختاریافته JSON تولید می‌کنی. فقط JSON خالص برگردان — بدون توضیح یا backtick.`;
+  const user=`درس: ${subj.fa} (${subj.en})
+زبان: ${langMap[state.lang]}
+جزئیات: ${detailMap[state.detail]}
+بخش‌ها: ${outKeys.join(', ')}
+${examText?`\nنمونه سوالات:\n${examText}`:''}
+
+متن جزوه:
+"""
+${inputText.substring(0,7000)}
+"""
+
+JSON:
+{
+  "title":"عنوان موضوع",
+  ${outInstructions}
+}`;
+
+  isLoading=true;
+  document.getElementById('gen-btn').disabled=true;
+  document.getElementById('gen-btn').innerHTML='<div class="dots"><span></span><span></span><span></span></div> در حال پردازش...';
+  document.getElementById('loading-msg').textContent='در حال تحلیل '+subj.fa+' با هوش مصنوعی...';
+  showLoad(true);
+  document.getElementById('result-wrap').style.display='none';
+  document.getElementById('err-msg').classList.remove('show');
+  document.getElementById('out-panel').classList.add('show');
+  document.getElementById('sp1').classList.add('done');
+  document.getElementById('sp2').classList.add('done','active');
+  document.getElementById('sp3').classList.add('active');
+  document.getElementById('out-panel').scrollIntoView({behavior:'smooth',block:'start'});
+
+  try{
+    const res=await fetch('proxy.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system,messages:[{role:'user',content:user}]})});
+    const data=await res.json();
+    const raw=(data.content||[]).map(i=>i.text||'').join('');
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+    renderResult(parsed,subj,outKeys);
+  }catch(e){
+    showErr('خطا در ارتباط با سرور. مطمئن شو proxy.php آپلود شده و API Key درسته.');
+  }finally{
+    isLoading=false;
+    document.getElementById('gen-btn').disabled=false;
+    document.getElementById('gen-btn').innerHTML='<span>✦</span> ساخت خلاصه هوشمند';
+    showLoad(false);
+  }
+}
+
+function renderResult(data,subj,keys){
+  const tabBar=document.getElementById('rtabs');
+  const tabContents=document.getElementById('rtab-contents');
+  tabBar.innerHTML='';tabContents.innerHTML='';
+  let allText=`خلاصه ${subj.fa}: ${data.title||''}\n\n`;
+
+  keys.forEach((k,i)=>{
+    if(!data[k])return;
+    const meta=outMeta[k];
+    const btn=document.createElement('div');
+    btn.className='rtab'+(i===0?' active':'');
+    btn.textContent=meta.tab;
+    btn.onclick=()=>{
+      document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.rtab-content').forEach(t=>t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('rc-'+k).classList.add('active');
+    };
+    tabBar.appendChild(btn);
+    const div=document.createElement('div');
+    div.className='rtab-content'+(i===0?' active':'');
+    div.id='rc-'+k;
+    if(k==='tree'){div.innerHTML=renderTree(data.tree);allText+=`=== خلاصه درختی ===\n${flatTree(data.tree)}\n\n`;}
+    else if(k==='exam'){div.innerHTML=renderExam(data.exam);allText+=`=== ویژه امتحان ===\n${(data.exam||[]).map((x,i)=>`${i+1}. ${x}`).join('\n')}\n\n`;}
+    else if(k==='qa'){div.innerHTML=renderQA(data.qa);allText+=`=== سوال و جواب ===\n${(data.qa||[]).map(x=>`س: ${x.q}\nج: ${x.a}`).join('\n\n')}\n\n`;}
+    else if(k==='table'){div.innerHTML=renderTable(data.table);}
+    else if(k==='glossary'){div.innerHTML=renderGlossary(data.glossary);allText+=`=== واژگان ===\n${(data.glossary||[]).map(x=>`${x.term}: ${x.def}`).join('\n')}\n\n`;}
+    tabContents.appendChild(div);
+  });
+
+  lastResultText=allText;
+  document.getElementById('out-title').textContent=data.title||(('خلاصه ')+subj.fa);
+  document.getElementById('out-sub').textContent=subj.fa+' — '+keys.length+' بخش آماده';
+  document.getElementById('result-wrap').style.display='block';
+
+  document.querySelectorAll('.qa-item').forEach(item=>{
+    item.querySelector('.qa-q').addEventListener('click',()=>item.classList.toggle('open'));
+  });
+}
+
+function renderTree(tree){
+  if(!tree)return'';
+  let h=`<div class="r-section"><div class="r-section-title">🌳 خلاصه درختی</div><div class="tree"><div class="tree-root">${tree.root||''}</div><div class="tree-branch">`;
+  (tree.branches||[]).forEach(b=>{
+    h+=`<div class="tree-item">${b.title}</div><div class="tree-sub">`;
+    (b.items||[]).forEach(it=>{h+=`<div class="tree-sub-item">${it}</div>`;});
+    h+=`</div>`;
+  });
+  h+=`</div></div></div>`;return h;
+}
+function flatTree(tree){if(!tree)return'';let t=tree.root+'\n';(tree.branches||[]).forEach(b=>{t+=`  • ${b.title}\n`;(b.items||[]).forEach(it=>{t+=`    – ${it}\n`;});});return t;}
+function renderExam(items){if(!items||!items.length)return'';return`<div class="r-section"><div class="r-section-title">🎯 نکات ویژه امتحان</div><div class="exam-list">${items.map(x=>`<div class="exam-item"><div class="exam-dot"></div><div>${x}</div></div>`).join('')}</div></div>`;}
+function renderQA(items){if(!items||!items.length)return'';return`<div class="r-section"><div class="r-section-title">❓ نمونه سوال + جواب</div><div class="qa-list">${items.map(x=>`<div class="qa-item"><div class="qa-q">${x.q}<span class="qa-toggle">▼</span></div><div class="qa-a">${x.a}</div></div>`).join('')}</div></div>`;}
+function renderTable(table){if(!table||!table.headers)return'';const head=table.headers.map(h=>`<th>${h}</th>`).join('');const rows=(table.rows||[]).map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');return`<div class="r-section"><div class="r-section-title">📊 مقایسه جدولی</div><div style="overflow-x:auto"><table class="compare-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div></div>`;}
+function renderGlossary(items){if(!items||!items.length)return'';return`<div class="r-section"><div class="r-section-title">📖 واژگان کلیدی</div><div class="gloss-list">${items.map(x=>`<div class="gloss-item"><span class="gloss-term">${x.term}</span><span class="gloss-def">${x.def}</span></div>`).join('')}</div></div>`;}
+
+function showLoad(on){document.getElementById('loading').classList.toggle('show',on);}
+function showErr(msg){document.getElementById('out-panel').classList.add('show');const el=document.getElementById('err-msg');el.textContent='⚠️ '+msg;el.classList.add('show');}
+function flash(id){const el=document.getElementById(id);el.style.boxShadow='0 0 0 3px rgba(255,82,82,0.25)';el.style.borderColor='var(--red)';setTimeout(()=>{el.style.boxShadow='';el.style.borderColor='';},1800);}
+function copyAll(){if(!lastResultText)return;navigator.clipboard.writeText(lastResultText);const btn=document.getElementById('copy-btn');btn.textContent='✓ کپی شد';btn.classList.add('copied');setTimeout(()=>{btn.textContent='📋 کپی همه';btn.classList.remove('copied');},2000);}
+
+/* ===== LOCK / UNLOCK ===== */
+const CORRECT_PWD = 'dent404'; // رمز عبور را اینجا تغییر دهید
+
+function openPwdModal(){
+  document.getElementById('pwd-modal').classList.add('show');
+  setTimeout(()=>document.getElementById('pwd-input').focus(),120);
+}
+function closePwdModal(){
+  document.getElementById('pwd-modal').classList.remove('show');
+  document.getElementById('pwd-input').value='';
+  clearPwdErr();
+}
+function clearPwdErr(){
+  document.getElementById('pwd-err').textContent='';
+  document.getElementById('pwd-input').classList.remove('wrong');
+}
+function checkPwd(){
+  const val=document.getElementById('pwd-input').value;
+  if(val===CORRECT_PWD){
+    // success animation
+    document.getElementById('pwd-lock-icon').textContent='🔓';
+    document.getElementById('pwd-submit').textContent='✓ خوش آمدید!';
+    document.getElementById('pwd-submit').style.background='linear-gradient(135deg,#00695c,#00897b)';
+    setTimeout(()=>{
+      document.getElementById('pwd-modal').classList.remove('show');
+      // hide lock box
+      const lb=document.getElementById('lock-box');
+      lb.style.transition='all .4s ease';
+      lb.style.opacity='0';lb.style.transform='scale(.95)';
+      setTimeout(()=>{
+        lb.style.display='none';
+        // show main content
+        const mc=document.getElementById('main-content');
+        mc.style.display='block';
+        mc.style.opacity='0';mc.style.transition='opacity .5s ease';
+        setTimeout(()=>{mc.style.opacity='1';},20);
+      },350);
+    },700);
+  } else {
+    const inp=document.getElementById('pwd-input');
+    inp.classList.add('wrong');
+    document.getElementById('pwd-err').textContent='رمز عبور اشتباه است. دوباره تلاش کنید.';
+    inp.value='';
+    setTimeout(()=>inp.focus(),50);
+  }
+}
+function openSummarizer(){
+  document.getElementById('dashboard-view').style.display='none';
+  document.getElementById('summarizer-view').classList.add('show');
+}
+function closeSummarizer(){
+  document.getElementById('summarizer-view').classList.remove('show');
+  document.getElementById('dashboard-view').style.display='block';
+}
+</script>
+</body>
+</html>
